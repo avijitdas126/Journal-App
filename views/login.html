@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <title>SignUp</title>
+  </head>
+
+  <body>
+    <div class="container" id="mainfrom">
+      <div class="card" style="width: 30rem" id="formCard">
+        <div class="card-body">
+          <h5 class="card-title">SignUp Page</h5>
+          <form method="post">
+            
+            <div class="mb-3">
+              <label for="exampleInputText1" class="form-label"
+                >Username:</label
+              >
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Enter Username"
+                id="username"
+                required
+                name="username"
+                aria-label="nameHelp"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputText1" class="form-label"
+                >Student id (If your are student):</label
+              >
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Enter Student id "
+                id="student-id"
+                name="student-id"
+                aria-label="nameHelp"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputText1" class="form-label"
+                >College Name:</label
+              >
+              <input
+                class="form-control"
+                type="text"
+                name="college-name"
+                id="college"
+                required
+                placeholder="Enter College Name"
+                aria-label="CollegeHelp"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputText1" class="form-label">Role:</label>
+              <select
+                class="form-select"
+                aria-label="role"
+                name="role"
+                id="role"
+                required
+              >
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="exampleInputPassword1" class="form-label"
+                >Password</label
+              >
+              <input
+                type="password"
+                class="form-control"
+                name="password"
+                id="password"
+                required
+                id="exampleInputPassword1"
+              />
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-submit">
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div
+        id="liveToast"
+        class="toast"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="toast-header">
+          <svg
+            aria-hidden="true"
+            class="bd-placeholder-img rounded me-2"
+            height="20"
+            preserveAspectRatio="xMidYMid slice"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect width="100%" height="100%" fill="#007aff" id="rectid"></rect>
+          </svg>
+          <strong class="me-auto">Bootstrap</strong>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="toast-body">Hello, world! This is a toast message.</div>
+      </div>
+    </div>
+  </body>
+  <script src="./js/bootstrap.min.js"></script>
+  <script>
+    const toastLive = document.getElementById("liveToast");
+    let name = document.querySelector("#name");
+    let username = document.querySelector("#username");
+    let studentId = document.querySelector("#student-id");
+    let college = document.querySelector("#college");
+    let role = document.querySelector("#role");
+    let password = document.querySelector("#password");
+    let btn = document.querySelector("#btn-submit");
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
+    let title = document.querySelector(".me-auto");
+    let body = document.querySelector(".toast-body");
+    let rectid = document.querySelector("#rectid");
+
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      let sname = name.value;
+      let suname = username.value;
+      let id = studentId.value;
+      let clg = college.value;
+      let srole = role.value;
+      let pass = password.value;
+      console.log(
+        JSON.stringify({
+          name: sname,
+          username: suname,
+          studentId: id,
+          college: clg,
+          role: srole,
+          password: pass,
+        })
+      );
+      try {
+        let res = await fetch("http://localhost/journal/views/signup.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: sname,
+            username: suname,
+            studentId: id,
+            college: clg,
+            role: srole,
+            password: pass,
+          }),
+        });
+        let data = await res.json();
+        if (res.ok) {
+          rectid.setAttribute("fill", "green");
+          title.innerHTML = "Success";
+          body.innerHTML = data.message;
+          console.log(data);
+        } else {
+          rectid.setAttribute("fill", "red");
+          title.innerHTML = "Error";
+          body.innerHTML = data.message;
+          console.log(data);
+        }
+
+        toastBootstrap.show();
+      } catch (error) {
+        rectid.setAttribute("fill", "red");
+        title.innerHTML = "Error";
+        body.innerHTML = error.message;
+        console.log(error);
+        toastBootstrap.show();
+      }
+    });
+  </script>
+</html>

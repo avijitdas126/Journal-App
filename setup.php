@@ -1,53 +1,40 @@
 <?php
 
-require_once 'utils/load_env.php';
-load_env();
+require_once 'utils/db_conn.php';
 
-function db_conn($servername, $db, $username, $password): PDO|null
-{
-    try {
-        $conn = new PDO("mysql:host=$servername;dbname=$db", $username, $password);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        echo 'Connection successfully';
-        return $conn;
-    } catch (PDOException $e) {
-        echo "Connection failed" . $e->getMessage();
-        return null;
-    }
 
-}
-function table_exists(PDO $conn, string $table): bool
-{
-    $database = Env('db');
-
-    $query = "SELECT TABLE_NAME 
-              FROM INFORMATION_SCHEMA.TABLES 
-              WHERE TABLE_SCHEMA = '$database' 
-              AND TABLE_NAME = '$table'";
-
-    $success = $conn->query($query);
-
-    return $success !== false;
-}
+$conn=db_conn(Env('servername'),Env('db'),Env('username'),Env('password'));
+db_setup($conn);
+db_close($conn);
 
 function db_setup(PDO &$conn): void
 {
     $isExit = table_exists($conn, 'user');
-    if ($isExit) {
-        $sql = "CREATE TABLE `user` (`id` INT NOT NULL AUTO_INCREMENT , `name` VARCHAR(50) NOT NULL , `student_id` VARCHAR(50) NOT NULL , `college_name` VARCHAR(50) NOT NULL , `password` VARCHAR(255) NOT NULL , createAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updateAt` DATETIME NULL DEFAULT NULL , `role` ENUM('student','teacher','developer','admin') NOT NULL , PRIMARY KEY (`id`), UNIQUE (`student_id`));";
+    
+    if (!$isExit) {
+        $sql = "CREATE TABLE `user` (
+        `id` INT NOT NULL AUTO_INCREMENT , 
+        `name` VARCHAR(50) NOT NULL,
+        `username` VARCHAR(50) NOT NULL,
+        `student_id` VARCHAR(50) DEFAULT NULL , 
+        `role` ENUM('student','teacher','developer','admin') NOT NULL, 
+        `college_name` VARCHAR(50) NOT NULL , 
+        `password` VARCHAR(255) NOT NULL,
+        `avatar_url` VARCHAR(225) NOT NULL, 
+        `createAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , 
+        `updateAt` DATETIME NULL DEFAULT NULL  ,
+        PRIMARY KEY (`id`),
+        UNIQUE (`username`)
+        );";
         $success = $conn->exec(statement: $sql);
         if (!$success) {
-            echo nl2br(string: "\n Setup is successfully");
+            echo nl2br(string: "\nSetup is successfully");
         } else {
-            die(nl2br(string: "\n Setup is unsuccessfully"));
+            die(nl2br(string: "\nSetup is unsuccessfully"));
         }
     }
 }
 
-function db_close(&$conn): void
-{
-    $conn = null;
-    echo nl2br("\nConnection is successfully closed");
-}
+
 
 
