@@ -1,0 +1,2 @@
+- [x] Setup finishd
+- [x] Database setup 
