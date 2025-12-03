@@ -1,6 +1,24 @@
 <?php
 require_once __DIR__ . '/../utils/base.php';
 session_start();
+$title="Navbar";
+
+if(!isset($_SESSION['name']) && !isset($_SESSION['username']) && !isset($_SESSION['user_id']) && !isset($_SESSION['department_id']) && !isset($_SESSION['role'])){
+    header("Location: login.php");
+    exit();
+}
+$method = $_SERVER['REQUEST_METHOD'];
+switch ($method) {
+    case 'GET':
+        if(!isset($_GET['page'])){
+            header("Location: 404.php");
+        }
+        $page = trim($_GET['page']);
+    break;
+    default:
+    header("Location: 404.php");
+    break;
+}
 ?>
 
 <!DOCTYPE html>
@@ -16,12 +34,24 @@ session_start();
 
 <body>
 
+<div class="d-flex">
+    <div>
+        <?php include __DIR__ . '/components/sidebar.php'; ?>
+    </div>
+    <div>
+        <?php include __DIR__ . '/components/header.php'; ?>
+    </div>
+
+
+</div>
+
+
 
 
 </body>
 
-<script>
-    <script src="<?php baseurl("js/bootstrap.min.js") ?>"></script>
-</script>
+
+    <script src="<?php baseurl("js/bootstrap.bundle.min.js") ?>"></script>
+
 
 </html>
