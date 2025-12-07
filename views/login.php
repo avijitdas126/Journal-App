@@ -37,14 +37,21 @@ switch ($method) {
         $error = "This username is not verifyed yet!";
       } else {
         session_start();
-         $_SESSION['name'] = $user['name'];
+        $_SESSION['name'] = $user['name'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['user_id'] = $user['admin_id'];
         $_SESSION['department_id'] = $user['department_id'];
         $_SESSION['role'] = $user['role'];
       }
+      header("Location: dashboard.php?page=overview");
     } else {
       $error = "This username is not presented yet!";
+    }
+    break;
+  case 'GET':
+    session_start();
+    if (isset($_SESSION['name']) && isset($_SESSION['username']) && isset($_SESSION['user_id']) && isset($_SESSION['department_id']) && isset($_SESSION['role'])) {
+      header("Location: dashboard.php?page=overview");
     }
     break;
 }

@@ -1,12 +1,13 @@
 <style>
   #navbar {
-    min-width: calc(100vw - 280px);
+    width: 100%;
     position: relative;
   }
 
   #nav {
     padding: 10px;
     display: flex;
+    gap: 10px;
     align-items: center;
     justify-content: flex-end;
   }
@@ -44,6 +45,15 @@
 </style>
 <div id="navbar">
   <div class="container-fluid bg-primary" id="nav">
+    <?php if ($page == 'add_article' || $page == 'edit_article') {
+      ?>
+      <button type="button" class="btn btn-dark"><svg width="25px" height="25px" viewBox="0 0 25 25" fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path d="M4.99997 5.50005H20M7.5 14L12.5 9.00003L17.5 14" stroke="#ffffffff" stroke-width="1.2" />
+          <path d="M12.5 9.00003V20" stroke="#ffffffff" stroke-width="1.2" />
+        </svg>Submit</button>
+      <?php
+    } ?>
     <div class="profile">
 
       <img src="https://github.com/mdo.png" alt="avatar" width="32" height="32" class="rounded-circle me-2" />

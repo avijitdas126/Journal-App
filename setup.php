@@ -235,12 +235,89 @@ function db_setup(PDO &$conn): void
         FOREIGN KEY (`department_id`) REFERENCES departments(`department_id`)
         );";
         $success = $conn->exec(statement: $sql);
+        
         if ($success) {
             die(nl2br(string: "Setup is unsuccessfully"));
 
         }
     }
 
+    $isExit = table_exists($conn, 'article');
+    if (!$isExit) {
+        $sql="CREATE TABLE `article` (`article_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT ,
+        `author_id` INT NOT NULL ,
+        `author_type`  ENUM('student','admin','teacher') NOT NULL,
+        `title` VARCHAR(225) NOT NULL ,
+        `despcrition` VARCHAR(225) NULL,
+        `category` INT NULL,
+        `slug` VARCHAR(225) NOT NULL ,
+        `status` ENUM('draft','submitted','approved','rejected','review','published') NOT NULL DEFAULT 'draft' ,
+        `content_json` JSON NOT NULL ,
+        `content_html` LONGTEXT NOT NULL ,
+        `submitted_at` TIMESTAMP NULL ,
+        `published_at` TIMESTAMP NULL ,
+        `created_at` TIMESTAMP NULL ,
+        `updated_at` TIMESTAMP NULL ,
+        `deleted_at` TIMESTAMP NULL ,
+        PRIMARY KEY (`article_id`) ,
+        FOREIGN KEY (`category`) REFERENCES category(`id`)
+        );";
+        $success = $conn->exec(statement: $sql);
+        if ($success) {
+            die(nl2br(string: "Setup is unsuccessfully"));
+
+        }
+    }
+    $isExit = table_exists($conn, 'review');
+    if (!$isExit) {
+        $sql="CREATE TABLE `reviews` (`review_id` INT NOT NULL AUTO_INCREMENT ,
+         `article_id` BIGINT NOT NULL ,
+        `reviewer_id` INT NOT NULL ,
+        `reviewer_text` VARCHAR(225) NOT NULL ,
+        `created_at` INT NOT NULL ,
+        `marks` INT NOT NULL DEFAULT '0' ,
+        PRIMARY KEY (`review_id`) ,
+        FOREIGN KEY (`article_id`) REFERENCES article(`article_id`),
+        FOREIGN KEY (`reviewer_id`) REFERENCES admins(`admin_id`)
+        );";
+        $success = $conn->exec(statement: $sql);
+        if ($success) {
+            die(nl2br(string: "Setup is unsuccessfully"));
+
+        }
+    }
+    $isExit = table_exists($conn, 'category');
+    if (!$isExit) {
+        $sql="CREATE TABLE `category` (
+        `id` INT NOT NULL AUTO_INCREMENT , 
+        `category` VARCHAR(50) NOT NULL,
+        `slug` VARCHAR(50) NOT NULL,
+        `description` VARCHAR(255) DEFAULT NULL,
+        PRIMARY KEY (`id`)
+        );";
+
+        $success = $conn->exec(statement: $sql);
+        if ($success) {
+            die(nl2br(string: "Setup is unsuccessfully"));
+
+        }
+        $sql = "INSERT INTO category (category, slug, description) VALUES
+        ('Science', 'science', 'Articles related to science'),
+        ('Technology', 'technology', 'Articles related to technology'),
+        ('Engineering', 'engineering', 'Articles related to engineering'),
+        ('Mathematics', 'mathematics', 'Articles related to mathematics'),
+        ('Arts', 'arts', 'Articles related to arts'),
+        ('Literature', 'literature', 'Articles related to literature'),
+        ('History', 'history', 'Articles related to history'),
+        ('Philosophy', 'philosophy', 'Articles related to philosophy'),
+        ('Social Sciences', 'social-sciences', 'Articles related to social sciences'),
+        ('Business', 'business', 'Articles related to business');";
+        $success = $conn->exec(statement: $sql);
+        if ($success) {
+            die(nl2br(string: "Setup is unsuccessfully"));
+
+        }
+    }
     echo "Setup successfully";
 }
 

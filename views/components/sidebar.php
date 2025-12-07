@@ -11,21 +11,19 @@
     <hr>
     <ul class="nav nav-pills flex-column mb-auto" style="min-height: calc(100vh - 165px);">
       <li class="nav-item">
-        <a href="?page=overview" class="nav-link active" aria-current="page">
+        <a href="?page=overview" class="nav-link <?php if($page=='overview') {echo'active';}else{ echo "text-white";} ?>" aria-current="page">
           
           Overview
         </a>
       </li>
       <li>
-        <a href="?page=article" class="nav-link text-white">
-          
+        <a href="?page=article" class="nav-link  <?php if($page=='article' || $page=='edit_article'||$page=='add_article') {echo'active';}else{ echo "text-white";} ?>">
           Post an Article
         </a>
       </li>
       <li>
-        <a href="#" class="nav-link text-white">
-          
-          Orders
+        <a href="?page=reviews" class="nav-link <?php if($page=='reviews') {echo'active';}else{ echo "text-white";} ?>">
+          Reviews
         </a>
       </li>
       <li>
