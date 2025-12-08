@@ -57,6 +57,7 @@ switch ($method) {
             $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
             db_setup($conn);
             db_close($conn);
+            header("Location: http://localhost/Journal/setup.php");
         }
         break;
     case "GET":
@@ -241,51 +242,6 @@ function db_setup(PDO &$conn): void
 
         }
     }
-
-    $isExit = table_exists($conn, 'article');
-    if (!$isExit) {
-        $sql = "CREATE TABLE `article` (`article_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT ,
-        `author_id` INT NOT NULL ,
-        `author_type`  ENUM('student','admin','teacher') NOT NULL,
-        `title` VARCHAR(225) NOT NULL ,
-        `despcrition` VARCHAR(225) NULL,
-        `category` INT NULL,
-        `slug` VARCHAR(225) NOT NULL ,
-        `status` ENUM('draft','submitted','approved','rejected','review','published') NOT NULL DEFAULT 'draft' ,
-        `content_json` JSON NOT NULL ,
-        `content_html` LONGTEXT NOT NULL ,
-        `submitted_at` TIMESTAMP NULL ,
-        `published_at` TIMESTAMP NULL ,
-        `created_at` TIMESTAMP NULL ,
-        `updated_at` TIMESTAMP NULL ,
-        `deleted_at` TIMESTAMP NULL ,
-        PRIMARY KEY (`article_id`) ,
-        FOREIGN KEY (`category`) REFERENCES category(`id`)
-        );";
-        $success = $conn->exec(statement: $sql);
-        if ($success) {
-            die(nl2br(string: "Setup is unsuccessfully"));
-
-        }
-    }
-    $isExit = table_exists($conn, 'review');
-    if (!$isExit) {
-        $sql = "CREATE TABLE `reviews` (`review_id` INT NOT NULL AUTO_INCREMENT ,
-         `article_id` BIGINT NOT NULL ,
-        `reviewer_id` INT NOT NULL ,
-        `reviewer_text` VARCHAR(225) NOT NULL ,
-        `created_at` TIMESTAMP NOT NULL ,
-        `marks` INT NOT NULL DEFAULT '0' ,
-        PRIMARY KEY (`review_id`) ,
-        FOREIGN KEY (`article_id`) REFERENCES article(`article_id`),
-        FOREIGN KEY (`reviewer_id`) REFERENCES admins(`admin_id`)
-        );";
-        $success = $conn->exec(statement: $sql);
-        if ($success) {
-            die(nl2br(string: "Setup is unsuccessfully"));
-
-        }
-    }
     $isExit = table_exists($conn, 'category');
     if (!$isExit) {
         $sql = "CREATE TABLE `category` (
@@ -313,10 +269,55 @@ function db_setup(PDO &$conn): void
         ('Social Sciences', 'social-sciences', 'Articles related to social sciences'),
         ('Business', 'business', 'Articles related to business');";
         $success = $conn->exec(statement: $sql);
-        if ($success) {
+        if (!$success) {
             die(nl2br(string: "Setup is unsuccessfully"));
 
         }
+        $isExit = table_exists($conn, 'article');
+        if (!$isExit) {
+            $sql = "CREATE TABLE `article` (`article_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT ,
+        `author_id` INT NOT NULL ,
+        `author_type`  ENUM('student','admin','teacher') NOT NULL,
+        `title` VARCHAR(225) NOT NULL ,
+        `despcrition` VARCHAR(225) NULL,
+        `category` INT NULL,
+        `slug` VARCHAR(225) NOT NULL ,
+        `status` ENUM('draft','submitted','approved','rejected','review','published') NOT NULL DEFAULT 'draft' ,
+        `content_json` JSON NOT NULL ,
+        `content_html` LONGTEXT NOT NULL ,
+        `submitted_at` TIMESTAMP NULL ,
+        `published_at` TIMESTAMP NULL ,
+        `created_at` TIMESTAMP NULL ,
+        `updated_at` TIMESTAMP NULL ,
+        `deleted_at` TIMESTAMP NULL ,
+        PRIMARY KEY (`article_id`) ,
+        FOREIGN KEY (`category`) REFERENCES category(`id`)
+        );";
+            $success = $conn->exec(statement: $sql);
+            if ($success) {
+                die(nl2br(string: "Setup is unsuccessfully"));
+
+            }
+        }
+        $isExit = table_exists($conn, 'reviews');
+        if (!$isExit) {
+            $sql = "CREATE TABLE `reviews` (`review_id` INT NOT NULL AUTO_INCREMENT ,
+         `article_id` BIGINT UNSIGNED NOT NULL ,
+        `reviewer_id` INT NOT NULL ,
+        `reviewer_text` VARCHAR(225) NOT NULL ,
+        `created_at` TIMESTAMP NOT NULL ,
+        `marks` INT NOT NULL DEFAULT '0' ,
+        PRIMARY KEY (`review_id`) ,
+        FOREIGN KEY (`article_id`) REFERENCES article(`article_id`),
+        FOREIGN KEY (`reviewer_id`) REFERENCES admins(`admin_id`)
+        );";
+            $success = $conn->exec(statement: $sql);
+            if ($success) {
+                die(nl2br(string: "Setup is unsuccessfully"));
+
+            }
+        }
+
         $isExit = table_exists($conn, 'asset');
         if (!$isExit) {
             $sql = "CREATE TABLE `asset` (`id` INT NOT NULL AUTO_INCREMENT , `alt` VARCHAR(225) NOT NULL , `url` VARCHAR(225) NOT NULL , `author_id` INT NOT NULL , PRIMARY KEY (`id`) );";
@@ -329,7 +330,7 @@ function db_setup(PDO &$conn): void
         if (!$isExit) {
             $sql = "CREATE TABLE revisions (
                     revision_id INT AUTO_INCREMENT PRIMARY KEY,
-                    article_id BIGINT NOT NULL,
+                    article_id BIGINT UNSIGNED NOT NULL,
                     author_id INT NOT NULL,
                     revision_text TEXT NOT NULL,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
