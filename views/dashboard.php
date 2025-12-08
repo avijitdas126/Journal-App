@@ -46,6 +46,14 @@ switch ($method) {
                     include __DIR__ . '/components/article.php';
                 } else if ($page == 'add_article'||$page == 'edit_article') {
                     include __DIR__ . '/components/editor.php';
+                }else if($page == 'reviews'){
+                    include __DIR__ . '/components/review.php';
+                }else if($page == 'add_review'){
+                    include __DIR__ . '/components/add_review.php';
+                }else if($page == 'in_review'){
+                    include __DIR__ . '/components/in_review.php';
+                }else if($page=='edit_review_article'){
+                    include __DIR__ . '/components/student_resubmit.php';
                 }
                 ?>
             </main>

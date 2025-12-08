@@ -13,12 +13,15 @@ switch ($method) {
     case 'POST':
         $article_id = $input['article_id'];
         $author_id = $input['author_id'];
+        $category_id = $input['category_id'];
+        $isfull = $input['isfull'];
         $author_type = $input['author_type'];
         $title = $input['title'];
         $status = $input['status'];
         $slug = $input['slug'];
         $content_json = $input['content_json'];
         $content_html = $input['content_html'];
+
         try {
             // Connect to DB
             $conn = db_conn(
@@ -27,33 +30,59 @@ switch ($method) {
                 Env('username'),
                 Env('password')
             );
+
             $sql = "SELECT * FROM `article` WHERE `article_id` = $article_id;";
             $success = $conn->query($sql);
-            
+
             if (count($success->fetchAll())) {
-                $sql = "UPDATE `article` 
+                if (!$isfull) {
+                    $sql = "UPDATE `article` 
+                SET `title` = :title,
+                `slug` = :slug,
+                `category` = :category_id,
+                updated_at = CURRENT_TIMESTAMP
+                 WHERE `article`.`article_id` = :article_id;";
+                    $stmt = $conn->prepare($sql);
+                    $success = $stmt->execute([
+                        ':article_id' => $article_id,
+                        ':slug' => $slug,
+                        ':title' => $title,
+                        ':category_id' => $category_id,
+                    ]);
+                    http_response_code(200);
+                    echo json_encode([
+                        "status" => "success",
+                        "message" => "Article updated successfully",
+                        "article_id" => $article_id
+                    ]);
+                } else {
+                    $sql = "UPDATE `article` 
                 SET `title` = :title, 
                 `slug` = :slug, 
                 `content_json` = :content_json,
                 `status` = :status,
+                `category` = :category_id,
                 `content_html` = :content_html, 
                 `submitted_at` = NULL, `published_at` = NULL, updated_at = CURRENT_TIMESTAMP, `deleted_at` = NULL 
                  WHERE `article`.`article_id` = :article_id;";
-                $stmt = $conn->prepare($sql);
-                $success = $stmt->execute([
-                    ':article_id' => $article_id,
-                    ':title' => $title,
-                    ':slug' => $slug,
-                    ':status' => $status,
-                    ':content_json' => $content_json,
-                    ':content_html' => $content_html
-                ]);
-                 http_response_code(200);
-                  echo json_encode([
-                    "status" => "success",
-                    "message" => "Article updated successfully",
-                    "article_id" => $article_id
-                ]);
+                    $stmt = $conn->prepare($sql);
+                    $success = $stmt->execute([
+                        ':article_id' => $article_id,
+                        ':title' => $title,
+                        ':slug' => $slug,
+                        ':status' => $status,
+                        ':category_id' => $category_id,
+                        ':content_json' => $content_json,
+                        ':content_html' => $content_html
+                    ]);
+                    http_response_code(200);
+                    echo json_encode([
+                        "status" => "success",
+                        "message" => "Article updated successfully",
+                        "article_id" => $article_id
+                    ]);
+                }
+
             } else {
                 $sql = "
          INSERT INTO `article` 
@@ -65,6 +94,7 @@ switch ($method) {
             :title,
             :slug,
             :status,
+            :category_id
             :content_json,
             :content_html,
             NULL, 
@@ -82,6 +112,7 @@ switch ($method) {
                     ':type' => $author_type,
                     ':title' => $title,
                     ':slug' => $slug,
+                    ':category_id' => $category_id,
                     ':status' => $status,
                     ':content_json' => $content_json,
                     ':content_html' => $content_html

@@ -21,11 +21,13 @@
           Post an Article
         </a>
       </li>
+      <?php if($_SESSION['department_id']==20){ ?>
       <li>
         <a href="?page=reviews" class="nav-link <?php if($page=='reviews') {echo'active';}else{ echo "text-white";} ?>">
           Reviews
         </a>
       </li>
+      <?php } ?>
       <li>
         <a href="#" class="nav-link text-white">
           

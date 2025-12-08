@@ -20,18 +20,18 @@ $conn = db_conn(
       <div class="mb-3">
         <label for="exampleFormControlInput1" class="form-label">Category: </label>
         <select class="form-select" aria-label="role" name="department_id" id="category_id" required>
-              <?php
-              $stmt = $conn->prepare("SELECT * FROM `category`;");
-              $stmt->execute();
-              $categorys = $stmt->fetchAll();
-              foreach ($categorys as $category) {
-                ?>
-                <option value="<?php echo $category['id'] ?>"><?php echo $category['category'] ?> 
-                </option> <?php
-              }
-              ?>
-            </select>
-           </div>
+          <?php
+          $stmt = $conn->prepare("SELECT * FROM `category`;");
+          $stmt->execute();
+          $categorys = $stmt->fetchAll();
+          foreach ($categorys as $category) {
+            ?>
+            <option value="<?php echo $category['id'] ?>"><?php echo $category['category'] ?>
+            </option> <?php
+          }
+          ?>
+        </select>
+      </div>
       <div class="editor-scroll-box p-3 bg-white shadow-sm rounded">
         <div id="editorjs"></div>
       </div>
@@ -266,7 +266,68 @@ $conn = db_conn(
 <script>
   const draft = document.querySelector('#badged')
   const titleinput = document.querySelector('#titleinput')
-  const category_id=document.querySelector('#category_id')
+  const category_id = document.querySelector('#category_id')
+  category_id.addEventListener('input', (e) => {
+    window.localStorage.setItem('category_id', e.target.value)
+    let timerDraft = setTimeout(() => {
+      draft.innerHTML = "Saving..."
+    }, 2000)
+    setTimeout(() => {
+      draft.innerHTML = "";
+    }, 6000);
+    let payload = {
+      article_id: <?php echo $id; ?>,
+      isfull: false,
+      category_id: window.localStorage.getItem('category_id') || 0,
+      slug: window.localStorage.getItem("article_title") ? "<?php echo $_SESSION['username']; ?>_" + window.localStorage.getItem("article_title").toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') + '_' + <?php echo $id; ?> : "<?php echo $_SESSION['username']; ?>_" + "untitled-article_" + <?php echo $id; ?>,
+      title: window.localStorage.getItem("article_title") || "Untitled Article",
+    }
+    run(payload).then(data=>{
+     console.log(data)
+    }).catch(e=>{
+      console.log(e)
+    })
+  })
+  titleinput.addEventListener('input', (e) => {
+    window.localStorage.setItem("article_title", e.target.value)
+    let timerDraft = setTimeout(() => {
+      draft.innerHTML = "Saving..."
+    }, 2000)
+    setTimeout(() => {
+      draft.innerHTML = "";
+    }, 6000);
+    let payload = {
+      article_id: <?php echo $id; ?>,
+      isfull: false,
+      category_id: window.localStorage.getItem('category_id') || 0,
+      slug: window.localStorage.getItem("article_title") ? "<?php echo $_SESSION['username']; ?>_" + window.localStorage.getItem("article_title").toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') + '_' + <?php echo $id; ?> : "<?php echo $_SESSION['username']; ?>_" + "untitled-article_" + <?php echo $id; ?>,
+      title: window.localStorage.getItem("article_title") || "Untitled Article",
+    }
+    run(payload).then(data=>{
+     console.log(data)
+    }).catch(e=>{
+      console.log(e)
+    })
+  })
+  let run = async (payload) => {
+    try {
+      const response = await fetch('http://localhost/journal/views/components/api/add.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      let data = await response.json();
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      console.log('Save successful!');
+      return data;
+    } catch (error) {
+      console.error('Save failed:', error);
+    }
+  }
   titleinput.value = window.localStorage.getItem('article_title')
   // --- Debounce Utility Function ---
   const debounce = (func, wait) => {
@@ -309,6 +370,8 @@ $conn = db_conn(
       let payload = {
         article_id: <?php echo $id; ?>,
         author_id: <?php echo $_SESSION['user_id']; ?>,
+        isfull: true,
+        category_id: window.localStorage.getItem('category_id') || 0,
         author_type: "<?php echo $_SESSION['role']; ?>",
         title: window.localStorage.getItem("article_title") || "Untitled Article",
         status: "draft",
@@ -376,21 +439,15 @@ $conn = db_conn(
         class: ImageTool,
         config: {
           endpoints: {
-            byFile: 'http://localhost/uploadFile', // Your backend file uploader endpoint
-            byUrl: 'http://localhost/fetchUrl', // Your endpoint that provides uploading by Url
+            byFile: 'http://localhost/Journal/views/components/api/asset.php', // Your backend file uploader endpoint
+            byUrl: 'http://localhost/Journal/views/components/api/asset.php', // Your endpoint that provides uploading by Url
           }
         }
       },
       checklist: {
         class: Checklist,
       },
-      linkTool: {
-        class: LinkTool,
-        config: {
-          endpoint:
-            "http://localhost/phppot/jquery/editorjs/extract-link-data.php", // Your backend endpoint for url data fetching,
-        },
-      },
+
     },
     data: {
 
