@@ -12,7 +12,7 @@ switch ($method) {
             $username = trim($_POST['username']);
             $password = trim($_POST['password']);
             $db = trim($_POST['db']);
-            $content = "servername=$servername\nusername=$username\npassword=$password\ndb=$db";
+            $content = "servername=$servername\nusername=$username\npassword=$password\ndb=$db\nemail=\npassword_email=";
             $file = fopen('.env', 'w');
             if ($file) {
                 fwrite($file, $content);
@@ -92,7 +92,7 @@ switch ($method) {
             <?php
 
         } else {
-            header("Location: http://localhost/Journal/views/login.php");
+            header("Location: http://localhost/Journal/main.php");
         }
         break;
     default:

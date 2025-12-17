@@ -26,18 +26,9 @@ $stmt->execute([':id' => $article['category']]);
 $category = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // ---------------------
-// GET ALL PREVIOUS REVIEWS (teacher + student revisions)
+// GET ALL PREVIOUS REVIEWS (student revisions)
 // ---------------------
-$sql = "
-    SELECT r.*, a.name AS reviewer_name
-    FROM reviews r
-    LEFT JOIN admins a ON a.admin_id = r.reviewer_id
-    WHERE r.article_id = :id
-    ORDER BY r.created_at ASC
-";
-$stmt = $conn->prepare($sql);
-$stmt->execute([':id' => $id]);
-$reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $sql = "
     SELECT rev.*, s.name AS student_name 
     FROM revisions rev
@@ -87,26 +78,6 @@ $revisions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="col-12"
                 style="margin:12px;overflow-y:scroll;max-height:400px;border:1px solid #ddd; padding:15px; border-radius:5px; background-color:#f1faff;">
 
-                <?php if (count($reviews) == 0) { ?>
-                    <p class="text-muted">No revisions yet.</p>
-                <?php } ?>
-
-                <?php foreach ($reviews as $rev) { ?>
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <span class="badge bg-primary">
-                                Reviewer: <?php echo htmlspecialchars($rev['reviewer_name'] ?? "Teacher"); ?>
-                            </span>
-                            <span class="badge bg-secondary float-end">
-                                <?php echo htmlspecialchars($rev['created_at']); ?>
-                            </span>
-
-                            <p class="mt-3">
-                                <?php echo nl2br(htmlspecialchars($rev['reviewer_text'])); ?>
-                            </p>
-                        </div>
-                    </div>
-                <?php } ?>
                 <?php if (count($revisions) == 0) { ?>
                     <p class="text-muted">No revisions yet.</p>
                 <?php } ?>

@@ -1,0 +1,20 @@
+RewriteEngine On
+
+# ----------------------------------
+# 1. Remove .php extension
+# ----------------------------------
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.+)$ $1.php [L]
+
+# ----------------------------------
+# 2. Custom 404 page
+# ----------------------------------
+ErrorDocument 404 /Journal/views/404.php
+
+# ----------------------------------
+# 3. Prevent direct access to 404.php
+# ----------------------------------
+<Files ".env">
+    Require all denied
+</Files>

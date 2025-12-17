@@ -162,29 +162,29 @@ function db_setup(PDO &$conn): void
             die(nl2br(string: "Setup is unsuccessfully"));
         }
     }
-    $sql = "INSERT INTO departments (name, code) VALUES
-    ('Computer Science', 'CS'),
-    ('Mathematics', 'MATH'),
-    ('Physics', 'PHYS'),
-    ('Chemistry', 'CHEM'),
-    ('Zoology', 'ZOO'),
-    ('Botany', 'BOT'),
-    ('Electronics', 'ELE'),
-    ('Economics', 'ECO'),
-    ('English', 'ENG'),
-    ('Bengali', 'BEN'),
-    ('History', 'HIST'),
-    ('Political Science', 'POL'),
-    ('Philosophy', 'PHIL'),
-    ('Sociology', 'SOC'),
-    ('Education', 'EDU'),
-    ('Geography', 'GEO'),
-    ('Commerce', 'COM'),
-    ('Accountancy', 'ACC'),
-    ('Business Administration', 'BBA'),
-    ('Journalism and Mass Communication', 'JMC'),
-    ('General', 'GEN'),
-    ('Others', 'OTH');";
+    $sql = "INSERT INTO departments (department_id, name, code) VALUES
+    (1,'Computer Science', 'CS'),
+    (2,'Mathematics', 'MATH'),
+    (3,'Physics', 'PHYS'),
+    (4,'Chemistry', 'CHEM'),
+    (5,'Zoology', 'ZOO'),
+    (6,'Botany', 'BOT'),
+    (7,'Electronics', 'ELE'),
+    (8,'Economics', 'ECO'),
+    (9,'English', 'ENG'),
+    (10,'Bengali', 'BEN'),
+    (11,'History', 'HIST'),
+    (12,'Political Science', 'POL'),
+    (13,'Philosophy', 'PHIL'),
+    (14,'Sociology', 'SOC'),
+    (15,'Education', 'EDU'),
+    (16,'Geography', 'GEO'),
+    (17,'Commerce', 'COM'),
+    (18,'Accountancy', 'ACC'),
+    (19,'Business Administration', 'BBA'),
+    (20,'Journalism and Mass Communication', 'JMC'),
+    (21,'General', 'GEN'),
+    (22,'Others', 'OTH');";
     $success = $conn->exec(statement: $sql);
     if (!$success) {
         die(nl2br(string: "Setup is unsuccessfully"));
@@ -279,10 +279,10 @@ function db_setup(PDO &$conn): void
         `author_id` INT NOT NULL ,
         `author_type`  ENUM('student','admin','teacher') NOT NULL,
         `title` VARCHAR(225) NOT NULL ,
-        `despcrition` VARCHAR(225) NULL,
+        `description` VARCHAR(225) NULL,
         `category` INT NULL,
         `slug` VARCHAR(225) NOT NULL ,
-        `status` ENUM('draft','submitted','approved','rejected','review','published') NOT NULL DEFAULT 'draft' ,
+        `status` ENUM('draft','submitted','approved','rejected','review','published','deleted') NOT NULL DEFAULT 'draft' ,
         `content_json` JSON NOT NULL ,
         `content_html` LONGTEXT NOT NULL ,
         `submitted_at` TIMESTAMP NULL ,
@@ -343,6 +343,25 @@ function db_setup(PDO &$conn): void
                 die(nl2br(string: "Setup is unsuccessfully"));
             }
         }
+        $isExit = table_exists($conn, 'notices');
+        if (!$isExit) {
+            $sql = "CREATE TABLE `notices` (`id` INT NOT NULL AUTO_INCREMENT ,
+            `title` VARCHAR(225) NOT NULL ,
+            `author_id` int,
+            `url` VARCHAR(225) NOT NULL ,
+            `at_publish` TIMESTAMP NULL DEFAULT NULL ,
+            `at_updated` TIMESTAMP NULL DEFAULT NULL ,
+            PRIMARY KEY (`id`),
+            FOREIGN KEY (author_id) REFERENCES admins(`admin_id`)
+            );
+            ";
+            $success = $conn->exec(statement: $sql);
+            if ($success) {
+                die(nl2br(string: "Setup is unsuccessfully"));
+            }
+        }
+
+
 
 
     }

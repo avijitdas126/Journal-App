@@ -15,7 +15,7 @@ $inarticles=$stmt->fetchAll(PDO::FETCH_ASSOC);
 <script src="<?php baseurl("js/jquery.dataTables.min.js") ?>"></script>
 <script src="<?php baseurl("js/dataTables.buttons.min.js") ?>"></script>
 
-<div class="container">
+<div class="container" style="height: 100vh;padding-top:20px;">
     <div class="row py-2">
         <div class="col-12 d-flex" style="justify-content: space-between;align-items: center;">
             <h1>
@@ -25,7 +25,8 @@ $inarticles=$stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
     <div class="row py-4">
         <div class="col-12">
-            <table id="example" class="table table-hover responsive nowrap" style="width:100%">
+            <div style="overflow-x:auto; width:100%">
+                <table id="example" class="table table-hover responsive nowrap" style="width:100%; min-width:600px;">
                 <thead>
                     <tr>
                         <th>Title</th>
@@ -47,7 +48,8 @@ $inarticles=$stmt->fetchAll(PDO::FETCH_ASSOC);
                     </tr>
                     <?php } ?>
                 </tbody>
-            </table>
+                </table>
+            </div>
             
         </div>
     </div>
@@ -58,9 +60,10 @@ $inarticles=$stmt->fetchAll(PDO::FETCH_ASSOC);
             </h1>
         </div>
     </div>
-    <div class="row py-4">
-        <div class="col-12">
-            <table id="example" class="table table-hover responsive nowrap" style="width:100%">
+    <div class="row py-4" style="margin-bottom: 140px;">
+        <div class="col-12" style="margin-bottom: 40px;">
+            <div style="overflow-x:auto; width:100%">
+                <table id="exampleIn" class="table table-hover responsive nowrap" style="width:100%; min-width:600px;">
                 <thead>
                     <tr>
                         <th>Title</th>
@@ -82,7 +85,8 @@ $inarticles=$stmt->fetchAll(PDO::FETCH_ASSOC);
                     </tr>
                     <?php } ?>
                 </tbody>
-            </table>
+                </table>
+            </div>
             
         </div>
     </div>
@@ -120,5 +124,29 @@ $inarticles=$stmt->fetchAll(PDO::FETCH_ASSOC);
         $('[data-toggle="tooltip"]').tooltip();
     });
 
+
+    $("#exampleIn").DataTable({
+        aaSorting: [],
+        responsive: true,
+
+        columnDefs: [
+            {
+                responsivePriority: 1,
+                targets: 0
+            },
+            {
+                responsivePriority: 2,
+                targets: -1
+            }
+        ]
+    });
+
+    $(".dataTables_filter input")
+        .attr("placeholder", "Search here...")
+        .css({
+            width: "300px",
+            padding: '5px',
+            display: "inline-block"
+        });
 
 </script>

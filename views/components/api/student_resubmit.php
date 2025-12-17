@@ -71,7 +71,7 @@ $stmt->execute([
 // --------------------------------------------
 // 4. Redirect back
 // --------------------------------------------
-header("Location: http://localhost/Journal/?page=my_articles&msg=resubmitted_successfully");
+header("Location: http://localhost/Journal/views/dashboard.php?page=edit_review_article&id=" . $article_id);
 exit;
 
 ?>

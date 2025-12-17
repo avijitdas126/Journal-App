@@ -28,15 +28,20 @@ switch ($method) {
 
 
     $hash = password_hash($password, PASSWORD_BCRYPT);
+    // Check duplicate username
+    $check = $conn->prepare("SELECT username FROM admins WHERE username=?");
+    $check->execute([$username]);
+    if ($check->rowCount() > 0) {
+      $error = "Username already exists!";
+      break;
+    }
+    $check = $conn->prepare("SELECT username FROM students WHERE username=?");
+    $check->execute([$username]);
+    if ($check->rowCount() > 0) {
+      $error = "Username already exists!";
+      break;
+    }
     if ($role == 'teacher') {
-      // Check duplicate username
-      $check = $conn->prepare("SELECT username FROM admins WHERE username=?");
-      $check->execute([$username]);
-
-      if ($check->rowCount() > 0) {
-        $error = "Username already exists!";
-        break;
-      }
       $stmt = $conn->prepare("INSERT INTO admins
                 (name, username, college_name, department_id, role, password)
                 VALUES (?, ?, ?, ?, ?, ?)"
@@ -54,18 +59,11 @@ switch ($method) {
       if (!$ok) {
         $error = "Failed to create teacher. Try again!";
         break;
-      }else{
+      } else {
         header("Location: http://localhost/journal/views/login.php");
       }
     } else {
       // Check duplicate username
-      $check = $conn->prepare("SELECT username FROM students WHERE username=?");
-      $check->execute([$username]);
-
-      if ($check->rowCount() > 0) {
-        $error = "Username already exists!";
-        break;
-      }
       $stmt = $conn->prepare("INSERT INTO students
                 (name, username,student_id,university_roll,college_name, department_id, password)
                 VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -83,8 +81,8 @@ switch ($method) {
       if (!$ok) {
         $error = "Failed to create student. Try again!";
         break;
-      }else{
-          header("Location: http://localhost/journal/views/login.php");
+      } else {
+        header("Location: http://localhost/journal/views/login.php");
       }
     }
 
@@ -92,7 +90,7 @@ switch ($method) {
   case 'GET':
     $role = $_GET['role'] ?? '';
     if (empty($role) || ($role != 'teacher' && $role != 'student')) {
-      header("Location: http://localhost/Journal/views/404.php");
+      header("Location: 404.php");
       exit;
     }
     break;
@@ -109,13 +107,130 @@ switch ($method) {
   <link rel="stylesheet" href="./css/bootstrap.min.css" />
   <link rel="stylesheet" href="./css/style.css" />
   <title>SignUp</title>
+  <style>
+    body {
+      background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #mainfrom {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 0;
+    }
+
+    #formCard {
+      box-shadow: 0 8px 32px rgba(25, 118, 210, 0.10);
+      border-radius: 18px;
+      border: none;
+      animation: fadeInUp 0.7s cubic-bezier(.39, .575, .56, 1.000);
+      background: #fff;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .nav-pills .nav-link {
+      font-weight: 500;
+      font-size: 1.05rem;
+      border-radius: 8px;
+      margin-right: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-pills .nav-link.active {
+      background: #1976d2;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1976d2;
+      margin-bottom: 18px !important;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #1976d2;
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: 8px;
+      border: 1.5px solid #e3e3e3;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #1976d2;
+      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.10);
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      width: 100%;
+      padding: 10px 0;
+      margin-top: 10px;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(90deg, #1565c0 0%, #1976d2 100%);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .alert {
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 18px;
+    }
+  </style>
 </head>
 
 <body>
   <div class="container" id="mainfrom">
-    <div class="card" style="width: 30rem;padding:10px;" id="formCard">
-      <div class="card-body">
-        <h5 class="card-title" style="margin-bottom:15px;">SignUp Page</h5>
+    <div class="card" style="width: 30rem;padding:20px;" id="formCard">
+      <div style="margin:auto;">
+      <ul class="nav nav-pills">
+        <li class="nav-item">
+
+          <a class="nav-link <?php if ($role == 'student') { ?> active disabled <?php } ?>" aria-current="page"
+            href="signup.php?role=student">Join Us as Student</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <?php if ($role == 'teacher') { ?> active disabled <?php } ?>"
+            href="signup.php?role=teacher">Join Us as Teacher</a>
+        </li>
+
+      </ul>
+      </div>
+      <div class="card-body" style="margin-top: 15px;">
+        <h5 class="card-title" style="margin-bottom:15px;">Join With Us as <?php if ($role == 'student') { ?> Student
+          <?php } else if ($role == 'teacher') { ?>Teacher <?php } ?>
+        </h5>
         <?php if (!empty($error)) { ?>
           <div class="alert alert-danger alert-dismissible" role="alert">
             <div><?php echo $error; ?></div>
@@ -178,6 +293,8 @@ switch ($method) {
             <label for="exampleInputPassword1" class="form-label">Password</label>
             <input type="password" class="form-control" name="password" id="password" placeholder="Enter password"
               required id="exampleInputPassword1" />
+          </div>
+          <div>
           </div>
           <button type="submit" class="btn btn-primary" id="btn-submit">
             Submit

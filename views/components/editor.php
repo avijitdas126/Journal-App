@@ -8,8 +8,9 @@ $conn = db_conn(
   Env('username'),
   Env('password')
 );
+$mode = $_GET['mode'] ?? 'draft';
 ?>
-<div class="container py-3">
+<div class="container py-3 mb-5">
   <div class="row">
     <div class="col-md-12">
       <div class="mb-3">
@@ -32,24 +33,65 @@ $conn = db_conn(
           ?>
         </select>
       </div>
-      <div class="editor-scroll-box p-3 bg-white shadow-sm rounded">
+      <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">Description of Article: <span
+            class="badge text-bg-secondary" id="badged"></span></label>
+        <input type="text" class="form-control" id="desinput" placeholder="Enter the description of your article">
+      </div>
+      <div class="editor-scroll-box">
         <div id="editorjs"></div>
       </div>
+
     </div>
   </div>
 </div>
 
 <style>
   /* Scrollable wrapper */
+  /* Editor container */
   .editor-scroll-box {
-    width: 100%;
-    max-height: 500px;
-    /* Adjust height as you want */
+    height: 600px;
+    /* fixed height */
     overflow-y: auto;
-    /* Enable vertical scroll */
+    /* enable scrolling */
     overflow-x: hidden;
-    /* Prevent horizontal scroll */
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 12px 4px rgba(0, 0, 0, 0.05);
   }
+
+  /* Let Editor.js control layout */
+  #editorjs {
+    width: 100%;
+  }
+
+  /* Blocks should NOT be constrained */
+  .ce-block,
+  .ce-block__content {
+    max-width: 100% !important;
+    width: 100%;
+    margin: 0;
+  }
+
+  /* Toolbar position fix */
+  .ce-toolbar__actions {
+    right: 10px;
+  }
+
+  /* Images responsive */
+  .image-tool__image-picture img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Mobile */
+  @media (max-width: 576px) {
+    .editor-scroll-box {
+      height: 70vh;
+    }
+  }
+
 
   /* Ensure all editor content fits inside */
   #editorjs,
@@ -104,10 +146,7 @@ $conn = db_conn(
     right: 10px !important;
   }
 
-  .ce-block__content {
-    max-width: 700px;
-    margin: 0 auto;
-  }
+
 
   @media (max-width: 576px) {
 
@@ -138,11 +177,13 @@ $conn = db_conn(
     localStorage.removeItem('article_title');
     localStorage.removeItem('article');
     localStorage.removeItem('article_id');
+    localStorage.removeItem('article_description');
   });
   window.addEventListener("pagehide", () => {
     localStorage.removeItem("article_title");
     localStorage.removeItem("article");
     localStorage.removeItem("article_id");
+    localStorage.removeItem('article_description');
   });
 </script>
 <script>
@@ -266,6 +307,7 @@ $conn = db_conn(
 <script>
   const draft = document.querySelector('#badged')
   const titleinput = document.querySelector('#titleinput')
+  const desinput = document.querySelector('#desinput')
   const category_id = document.querySelector('#category_id')
   category_id.addEventListener('input', (e) => {
     window.localStorage.setItem('category_id', e.target.value)
@@ -279,12 +321,36 @@ $conn = db_conn(
       article_id: <?php echo $id; ?>,
       isfull: false,
       category_id: window.localStorage.getItem('category_id') || 0,
+      description: window.localStorage.getItem("article_description") || "No description",
       slug: window.localStorage.getItem("article_title") ? "<?php echo $_SESSION['username']; ?>_" + window.localStorage.getItem("article_title").toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') + '_' + <?php echo $id; ?> : "<?php echo $_SESSION['username']; ?>_" + "untitled-article_" + <?php echo $id; ?>,
       title: window.localStorage.getItem("article_title") || "Untitled Article",
+      description: window.localStorage.getItem("article_description") || "No description",
     }
-    run(payload).then(data=>{
-     console.log(data)
-    }).catch(e=>{
+    run(payload).then(data => {
+      console.log(data)
+    }).catch(e => {
+      console.log(e)
+    })
+  })
+  desinput.addEventListener('input', (e) => {
+    window.localStorage.setItem("article_description", e.target.value)
+    let timerDraft = setTimeout(() => {
+      draft.innerHTML = "Saving..."
+    }, 2000)
+    setTimeout(() => {
+      draft.innerHTML = "";
+    }, 6000);
+    let payload = {
+      article_id: <?php echo $id; ?>,
+      isfull: false,
+      category_id: window.localStorage.getItem('category_id') || 0,
+      slug: window.localStorage.getItem("article_title") ? "<?php echo $_SESSION['username']; ?>_" + window.localStorage.getItem("article_title").toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') + '_' + <?php echo $id; ?> : "<?php echo $_SESSION['username']; ?>_" + "untitled-article_" + <?php echo $id; ?>,
+      title: window.localStorage.getItem("article_title") || "Untitled Article",
+      description: window.localStorage.getItem("article_description") || "No description",
+    }
+    run(payload).then(data => {
+      console.log(data)
+    }).catch(e => {
       console.log(e)
     })
   })
@@ -299,13 +365,14 @@ $conn = db_conn(
     let payload = {
       article_id: <?php echo $id; ?>,
       isfull: false,
-      category_id: window.localStorage.getItem('category_id') || 0,
+      description: window.localStorage.getItem("article_description") || "No description",
+      category_id: window.localStorage.getItem('category_id') || 1,
       slug: window.localStorage.getItem("article_title") ? "<?php echo $_SESSION['username']; ?>_" + window.localStorage.getItem("article_title").toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') + '_' + <?php echo $id; ?> : "<?php echo $_SESSION['username']; ?>_" + "untitled-article_" + <?php echo $id; ?>,
       title: window.localStorage.getItem("article_title") || "Untitled Article",
     }
-    run(payload).then(data=>{
-     console.log(data)
-    }).catch(e=>{
+    run(payload).then(data => {
+      console.log(data)
+    }).catch(e => {
       console.log(e)
     })
   })
@@ -371,14 +438,20 @@ $conn = db_conn(
         article_id: <?php echo $id; ?>,
         author_id: <?php echo $_SESSION['user_id']; ?>,
         isfull: true,
-        category_id: window.localStorage.getItem('category_id') || 0,
+        description: window.localStorage.getItem("article_description") || "No description",
+        category_id: window.localStorage.getItem('category_id') || 1,
         author_type: "<?php echo $_SESSION['role']; ?>",
         title: window.localStorage.getItem("article_title") || "Untitled Article",
-        status: "draft",
+        status: <?php if ($mode == 'draft') {
+          echo '"draft"';
+        } else {
+          echo '"submitted"';
+        } ?>,
         slug: window.localStorage.getItem("article_title") ? "<?php echo $_SESSION['username']; ?>_" + window.localStorage.getItem("article_title").toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') + '_' + <?php echo $id; ?> : "<?php echo $_SESSION['username']; ?>_" + "untitled-article_" + <?php echo $id; ?>,
-        content_json: JSON.stringify(savedData),
+        content_json: savedData,
         content_html: convertDataToHtml(savedData)
       }
+      console.log(JSON.stringify(payload))
       // Replace with your actual API endpoint and saving logic
       const response = await fetch('http://localhost/journal/views/components/api/add.php', {
         method: 'POST',
@@ -404,6 +477,7 @@ $conn = db_conn(
   // Create a debounced version of the save function that waits 800ms
   const debouncedSave = debounce(saveEditorData, 800);
   editor = new EditorJS({
+    minHeight: 0,
     /**
      * Id of Element that should contain Editor instance
      */
@@ -454,52 +528,88 @@ $conn = db_conn(
     },
   });
   async function initEditor() {
-    let contentData = null;
+    let contentdata = null;
+
     // --- EDIT ARTICLE ---
     <?php if ($page == 'edit_article') { ?>
-      let fetchedData = () => {
-        return new Promise(async (resolve, reject) => {
-          try {
-            const article_id = <?php echo $id; ?>;
-            const response = await fetch(`http://localhost/journal/views/components/api/get.php?article_id=${article_id}`);
-            const data = await response.json();
-            if (response.ok) {
-              resolve(data.article);
-            } else {
-              reject('Failed to fetch article data');
-            }
-          } catch (error) {
-            reject(error);
-          }
-        });
-      };
-      fetchedData().then(article => {
-        window.localStorage.setItem('article', article.content_json);
-        window.localStorage.setItem('article_id', article.article_id);
-        window.localStorage.setItem('article_title', article.title);
+
+      try {
+        const article_id = <?php echo $id; ?>;
+        const res = await fetch(`http://localhost/journal/views/components/api/get.php?article_id=${article_id}`);
+        const data = await res.json();
+
+        if (!res.ok) throw new Error("API error");
+
+        const article = data.article;
+
+        // Save in localStorage
+        localStorage.setItem('article', article.content_json);
+        localStorage.setItem('article_id', article.article_id);
+        localStorage.setItem('article_title', article.title);
+        localStorage.setItem('category_id', article.category);
+        // Set title input
         titleinput.value = article.title;
+
+        // Parse JSON only once
         contentdata = article.content_json;
-      }).catch(error => {
-        console.error('Error fetching article data:', error);
-      });
+
+      } catch (e) {
+        console.error("Error fetching article data:", e);
+      }
+
     <?php } ?>
+
     // --- ADD ARTICLE ---
     <?php if ($page == "add_article") { ?>
-      contentData = localStorage.getItem("article") || {};
-      document.getElementById("titleinput").value = localStorage.getItem("article_title") || "";
+      try {
+        const article_id = <?php echo $id; ?>;
+        const res = await fetch(`http://localhost/journal/views/components/api/get.php?article_id=${article_id}`);
+        const data = await res.json();
+        if (!res.ok) {
+          if (local && local !== "") {
+            contentdata = local; // Important
+          }
+
+          document.getElementById("titleinput").value = localStorage.getItem("article_title") || "";
+          document.getElementById("category_id").value = localStorage.getItem("category_id") || 1;
+        } else {
+          const article = data.article;
+
+          // Save in localStorage
+          localStorage.setItem('article', article.content_json);
+          localStorage.setItem('article_id', article.article_id);
+          localStorage.setItem('article_title', article.title);
+          localStorage.setItem('category_id', article.category);
+          // Set title input
+          titleinput.value = article.title;
+          document.getElementById("category_id").value = article.category;
+          // Parse JSON only once
+          contentdata = article.content_json;
+        }
+
+
+
+      } catch (e) {
+        console.error("Error fetching article data:", e);
+      }
+
+      let local = localStorage.getItem("article");
+
+
     <?php } ?>
+
+    // Render Editor.js
     setTimeout(() => {
       if (contentdata) {
-        editor.render(JSON.parse(contentdata)).then(() => {
-          console.log("Editor.js has been rendered");
-        }).catch((error) => {
-          console.error("Error rendering Editor.js:", error);
-        });
+        editor.render(JSON.parse(contentdata))
+          .then(() => console.log("Editor.js rendered"))
+          .catch(err => console.error("Error rendering:", err));
       }
-    }, 1000);
+    }, 300);
   }
 
   initEditor();
+
 
 
 

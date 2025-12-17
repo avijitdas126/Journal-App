@@ -50,7 +50,7 @@ $category = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
             <div class="mb-3">
                 <label for="review-marks" class="form-label">Marks</label>
-                <input type="number" class="form-control" id="review-marks" name="marks" required>
+                <input type="number" class="form-control" id="review-marks" name="marks" max="100" required>
             </div>
             <div class="mb-3">
                 <label for="review-status" class="form-label">Review Status</label>

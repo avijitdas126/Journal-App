@@ -1,7 +1,7 @@
 <?php 
 
 require_once __DIR__ . '/load_env.php';
-
+require_once __DIR__ . '/logger.php';
 load_env();
 function db_conn($servername, $db, $username, $password): PDO|null
 {

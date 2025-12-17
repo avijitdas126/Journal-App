@@ -12,7 +12,7 @@ require_once __DIR__ . '/../utils/base.php';
     <title>404 page</title>
 </head>
 
-<body>
+<body style="margin: 0; padding: 0;">
     <center>
         <img src="<?php echo baseurl('assets/page-not-found.svg'); ?>" class="img-fluid" alt="404 page">
     </center>

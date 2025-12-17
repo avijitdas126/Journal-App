@@ -124,13 +124,17 @@ $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <input type="hidden" name="content_json" id="content_json">
             <input type="hidden" name="content_html" id="content_html">
         </div>
-
+<div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="4"
+                placeholder="Enter a brief description of your article"><?php echo htmlspecialchars($article['description']) ?></textarea>
+        </div>
 
 
         <!-- Student note -->
         <div class="mb-3">
             <label class="form-label">Message to Teacher</label>
-            <textarea class="form-control" name="student_message" rows="4"
+            <textarea class="form-control" name="student_message" id="student_message" rows="4"
                 placeholder="Explain what changes you made"></textarea>
         </div>
 
@@ -438,6 +442,7 @@ $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
         editor.save().then(data => {
             document.querySelector("#content_json").value = JSON.stringify(data);
             document.querySelector("#content_html").value = convertDataToHtml(data);
+            
             document.querySelector("form").submit();
         });
     }

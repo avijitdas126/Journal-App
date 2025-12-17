@@ -7,7 +7,7 @@ $output = ["success" => 0];
 session_start();
 // --- Check if user is logged in ---
 $userId = $_SESSION['user_id'] ?? null;
-
+ini_set("file_uploads","On");
 if (!$userId) {
     $output["error"] = "User not logged in. user_id missing in session.";
     echo json_encode($output);

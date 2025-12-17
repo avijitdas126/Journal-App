@@ -6,30 +6,30 @@ $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
 
 if ($method === 'POST') {
 
-    $admin_name = $_POST['admin_name'];
-    $admin_username = $_POST['admin_username'];
+    $developer_name = $_POST['developer_name'];
+    $developer_username = $_POST['developer_username'];
     $email = $_POST['email'];
-    $admin_password = password_hash($_POST['admin_password'], PASSWORD_BCRYPT);
+    $developer_password = password_hash($_POST['developer_password'], PASSWORD_BCRYPT);
     $college_name = $_POST['college_name'];
     $department_id = $_POST['department_id'];
 
     try {
-        $sql = "SELECT * FROM `admins` WHERE `username` = :username AND `role` = 'admin';";
+        $sql = "SELECT * FROM `admins` WHERE `username` = :username AND `role` = 'developer';";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([':username' => $admin_username]);
+        $stmt->execute([':username' => $developer_username]);
         if (count($stmt->fetchAll())) {
-            header("Location: /Journal/views/dashboard.php?page=add_admin&status=exists");
+            header("Location: /Journal/views/dashboard.php?page=add_developer&status=exists");
             exit;
         }
         $sql = "INSERT INTO admins 
             (name, username, password, college_name, department_id, role)
-            VALUES (:name, :username, :password, :college_name, :department_id, 'admin');";
+            VALUES (:name, :username, :password, :college_name, :department_id, 'developer');";
 
         $stmt = $conn->prepare($sql);
         $success = $stmt->execute([
-            ':name' => $admin_name,
-            ':username' => $admin_username,
-            ':password' => $admin_password,
+            ':name' => $developer_name,
+            ':username' => $developer_username,
+            ':password' => $developer_password,
             ':college_name' => $college_name,
             ':department_id' => $department_id
         ]);
@@ -45,10 +45,10 @@ if ($method === 'POST') {
             $altbody = 'Welcome to Journal. Your account has been created successfully. Here are your login details: Username: ' . $admin_username . ' Password: ' . $_POST['admin_password'];
             $subject = 'Welcome to Journal, ' . $admin_name;
             sendMailToNewAdmin($email, $admin_name, $subject, $body, $altbody);
-            header("Location: /Journal/views/dashboard.php?page=add_admin&status=success");
+            header("Location: /Journal/views/dashboard.php?page=add_developer&status=success");
             exit;
         } else {
-            header("Location: /Journal/views/dashboard.php?page=add_admin&status=error");
+            header("Location: /Journal/views/dashboard.php?page=add_developer&status=error");
             exit;
         }
 
@@ -61,14 +61,14 @@ if ($method === 'POST') {
     if ($error == 'success') {
         ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> New admin added successfully.
+            <strong>Success!</strong> New developer added successfully.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <?php
     } else if ($error == 'error') {
         ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Error!</strong> There was an error adding the new admin.
+                <strong>Error!</strong> There was an error adding the new developer.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php
@@ -80,7 +80,7 @@ if ($method === 'POST') {
                 </div>
         <?php
     }
-    $sql = "SELECT * FROM `admins` WHERE `role` = 'admin';";
+    $sql = "SELECT * FROM `admins` WHERE `role` = 'developer';";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $user = $stmt->fetchAll();
@@ -104,10 +104,10 @@ if ($method === 'POST') {
     <div class="row py-2">
         <div class="col-12 d-flex" style="justify-content: space-between;align-items: center;">
             <h1>
-                List of Admins
+                List of Developers
             </h1>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                Add New Admin</button>
+                Add New Developer</button>
         </div>
     </div>
     <div class="row py-4" style="margin-bottom: 140px;">
@@ -145,28 +145,28 @@ if ($method === 'POST') {
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Admin</h1>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Developer</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row py-4">
-                        <form action="/Journal/views/components/add_admin.php" method="POST">
+                        <form action="/Journal/views/components/add_developer.php" method="POST">
                             <div class="col-12">
                                 <div class="mb-3">
-                                    <label for="admin_name" class="form-label">Admin Name</label>
-                                    <input type="text" class="form-control" id="admin_name"
-                                        placeholder="Enter a admin name" name="admin_name" required>
+                                    <label for="developer_name" class="form-label">Developer Name</label>
+                                    <input type="text" class="form-control" id="developer_name"
+                                        placeholder="Enter a developer name" name="developer_name" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="admin_username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="admin_username"
-                                        placeholder="Enter a username" name="admin_username" required>
+                                    <label for="developer_username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="developer_username"
+                                        placeholder="Enter a username" name="developer_username" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="admin_password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="admin_password"
-                                        name="admin_password" placeholder="Enter a Password" required>
+                                    <label for="developer_password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="developer_password"
+                                        name="developer_password" placeholder="Enter a Password" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="exampleInputText1" class="form-label">College Name:</label>

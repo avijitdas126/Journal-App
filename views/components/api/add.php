@@ -17,11 +17,26 @@ switch ($method) {
         $isfull = $input['isfull'];
         $author_type = $input['author_type'];
         $title = $input['title'];
+        $description = $input['description'];
         $status = $input['status'];
         $slug = $input['slug'];
-        $content_json = $input['content_json'];
+        // Validate and sanitize content_json
+        $raw_content_json = $input["content_json"];
+        if (is_string($raw_content_json)) {
+            // Try to decode and re-encode to ensure valid JSON
+            $decoded = json_decode($raw_content_json, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $content_json = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+            } else {
+                http_response_code(400);
+                echo json_encode(["status" => "error", "message" => "Invalid JSON in content_json"]);
+                exit;
+            }
+        } else {
+            $content_json = json_encode($raw_content_json, JSON_UNESCAPED_UNICODE);
+        }
         $content_html = $input['content_html'];
-
+        
         try {
             // Connect to DB
             $conn = db_conn(
@@ -33,12 +48,13 @@ switch ($method) {
 
             $sql = "SELECT * FROM `article` WHERE `article_id` = $article_id;";
             $success = $conn->query($sql);
-
-            if (count($success->fetchAll())) {
+            $row=$success->fetchAll();
+            if (count($row)) {
                 if (!$isfull) {
                     $sql = "UPDATE `article` 
                 SET `title` = :title,
                 `slug` = :slug,
+                `description` = :description,
                 `category` = :category_id,
                 updated_at = CURRENT_TIMESTAMP
                  WHERE `article`.`article_id` = :article_id;";
@@ -47,6 +63,7 @@ switch ($method) {
                         ':article_id' => $article_id,
                         ':slug' => $slug,
                         ':title' => $title,
+                        ':description' => $description,
                         ':category_id' => $category_id,
                     ]);
                     http_response_code(200);
@@ -61,6 +78,7 @@ switch ($method) {
                 `slug` = :slug, 
                 `content_json` = :content_json,
                 `status` = :status,
+                `description` = :description,
                 `category` = :category_id,
                 `content_html` = :content_html, 
                 `submitted_at` = NULL, `published_at` = NULL, updated_at = CURRENT_TIMESTAMP, `deleted_at` = NULL 
@@ -71,6 +89,7 @@ switch ($method) {
                         ':title' => $title,
                         ':slug' => $slug,
                         ':status' => $status,
+                        ':description' => $description,
                         ':category_id' => $category_id,
                         ':content_json' => $content_json,
                         ':content_html' => $content_html
@@ -85,19 +104,19 @@ switch ($method) {
 
             } else {
                 $sql = "
-         INSERT INTO `article` 
-         ( `article_id`,`author_id`, `author_type`, `title`, `slug`, `status`, `content_json`, `content_html`, `submitted_at`, `published_at`, `created_at`, `updated_at`, `deleted_at`)
-          VALUES (
-            :article_id,
-            :id, 
-            :type,
-            :title,
-            :slug,
-            :status,
-            :category_id
-            :content_json,
-            :content_html,
-            NULL, 
+                 INSERT INTO `article` 
+                 ( `article_id`,`author_id`, `author_type`, `title`, `slug`, `status`, `category`, `content_json`, `content_html`, `submitted_at`, `published_at`, `created_at`, `updated_at`, `deleted_at`)
+                    VALUES (
+                        :article_id,
+                        :id, 
+                        :type,
+                        :title,
+                        :slug,
+                        :status,
+                        :category_id,
+                        :content_json,
+                        :content_html,
+                        NULL, 
             NULL, 
             CURRENT_TIMESTAMP, 
             CURRENT_TIMESTAMP, 
