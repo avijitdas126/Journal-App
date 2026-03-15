@@ -55,7 +55,7 @@ GROUP BY
     u.name,
     u.username
 HAVING published_articles > 0
-ORDER BY score DESC;
+ORDER BY score DESC LiMIT 3;
 ");
         $stmt->execute();
         $leaders = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -93,6 +93,17 @@ ORDER BY a.submitted_at DESC LIMIT 3;
         $stmt2 = $conn->prepare($sql2);
         $stmt2->execute();
         $articles = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+        $sql = "SELECT COUNT(A.category) AS 'count',C.category AS 'category',C.slug AS 'slug' 
+        FROM article AS A JOIN category AS C ON C.id=A.category 
+        WHERE A.status='published' 
+        GROUP BY A.category,C.category,C.slug 
+        HAVING COUNT(A.category)>0 
+        ORDER BY 'count' DESC;
+
+";
+        $result = $conn->prepare($sql);
+        $result->execute();
+        $categories = $result->fetchAll(PDO::FETCH_ASSOC);
 
         break;
     default:
@@ -108,7 +119,13 @@ ORDER BY a.submitted_at DESC LIMIT 3;
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Scriptores </title>
+    <?php
+    if ($page == 'home') {
+        echo "<title> The Digital Scape - Connecting Readers & Student Journalists </title>";
+    }
+    ?>
+     <link rel="shortcut icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
+        <link rel="icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
     <link href="<?php baseurl('css/bootstrap.min.css') ?>" rel="stylesheet">
     <link
         href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@400;500;600&display=swap"
@@ -117,7 +134,7 @@ ORDER BY a.submitted_at DESC LIMIT 3;
         body {
             font-family: 'Inter', sans-serif;
             padding-top: 56px;
-            /* Adjust for fixed-top navbar */
+            background: #f5f7fb;
         }
 
         .navbar-brand {
@@ -125,20 +142,38 @@ ORDER BY a.submitted_at DESC LIMIT 3;
             font-size: 1.4rem;
         }
 
+        .home-section {
+            padding: 2.75rem 0;
+        }
+
+        .section-heading {
+            font-family: 'Merriweather', serif;
+            font-size: clamp(1.5rem, 2.2vw, 2rem);
+            margin: 0;
+        }
+
         .hero {
-            min-height: 50vh;
-            /* Increased min-height for better visual */
+            min-height: 62vh;
             display: flex;
             align-items: center;
             justify-content: center;
             background-size: cover;
             background-position: center;
             color: #fff;
-            padding: 1rem;
+            padding: 1.5rem;
         }
 
         .hero .container {
             max-width: 900px;
+        }
+
+        .hero-overlay-card {
+            background: rgba(13, 28, 44, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 18px;
+            padding: 1.75rem;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.2);
         }
 
         .hero h1 {
@@ -151,6 +186,32 @@ ORDER BY a.submitted_at DESC LIMIT 3;
         .hero p {
             font-size: clamp(0.95rem, 2.5vw, 1.2rem);
             line-height: 1.5;
+        }
+
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .home-stat-chip {
+            background: #fff;
+            border: 1px solid #e7ebf3;
+            border-radius: 14px;
+            padding: 0.8rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #223142;
+            box-shadow: 0 6px 18px rgba(20, 38, 77, 0.06);
+        }
+
+        .home-stat-chip .value {
+            color: var(--bs-primary);
+            font-weight: 700;
         }
 
         @media (max-width: 576px) {
@@ -172,14 +233,25 @@ ORDER BY a.submitted_at DESC LIMIT 3;
         }
 
         .article-card {
+            border: 1px solid #e9edf5;
+            border-radius: 14px;
             transition: transform .3s, box-shadow .3s;
             animation: fadeIn 0.8s ease-out;
-            /* Add animation for pagination effect */
         }
 
         .article-card:hover {
             transform: translateY(-6px);
             box-shadow: 0 12px 25px rgba(0, 0, 0, .15);
+        }
+
+        .article-card .category-badge {
+            background: #edf3ff;
+            color: #2f4f8f;
+            font-weight: 600;
+            border-radius: 999px;
+            padding: 0.32rem 0.75rem;
+            font-size: 0.78rem;
+            display: inline-flex;
         }
 
         .leaderboard li {
@@ -191,6 +263,24 @@ ORDER BY a.submitted_at DESC LIMIT 3;
             justify-content: space-between;
             align-items: center;
             font-weight: 500;
+        }
+
+        .leaderboard li .rank-badge {
+            min-width: 32px;
+            min-height: 32px;
+            border-radius: 50%;
+            background: #e7ecf8;
+            color: #2d4f91;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            margin-right: 12px;
+        }
+
+        .leaderboard li.top-rank {
+            background: #fff8e1;
+            border: 1px solid #ffe3a5;
         }
 
         /* Category List Styles */
@@ -224,14 +314,23 @@ ORDER BY a.submitted_at DESC LIMIT 3;
         /* Notice Marquee Styles */
         .notice-marquee {
             display: flex;
-            background-color: #20c997;
-            /* A vibrant color for attraction */
+            background: linear-gradient(90deg, #1a9b7a, #22b389);
             color: white;
-            padding: 10px 0;
+            padding: 10px 14px;
             overflow: hidden;
             white-space: nowrap;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+            gap: 12px;
+            box-shadow: 0 8px 16px rgba(23, 93, 74, 0.2);
+        }
+
+        .notice-marquee .notice-label {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 0.28rem 0.7rem;
+            border-radius: 999px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
         }
 
         .notice-marquee strong {
@@ -492,7 +591,7 @@ ORDER BY a.submitted_at DESC LIMIT 3;
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
         <div class="container">
-            <a class="navbar-brand" href="#">Scriptores</a>
+            <a class="navbar-brand" href="#">The Digital Scape</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -508,6 +607,25 @@ ORDER BY a.submitted_at DESC LIMIT 3;
                     } else {
                         echo '';
                     } ?>" href="?page=articles">Articles</a></li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle <?php if ($page == 'category') {
+                            echo 'active';
+                        } else {
+                            echo '';
+                        } ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Category
+                        </a>
+                        <ul class="dropdown-menu">
+                            <?php
+                            foreach ($categories as $category) {
+                                echo '<li><a class="dropdown-item" href="?page=category&slug=' . $category['slug'] . '">' . $category['category'] . '</a></li>';
+                            }
+                            ?>
+                        </ul>
+                    </li>
+
+
                     <li class="nav-item"><a class="nav-link <?php if ($page == 'leaderboard') {
                         echo 'active';
                     } else {
@@ -518,6 +636,7 @@ ORDER BY a.submitted_at DESC LIMIT 3;
                     } else {
                         echo '';
                     } ?>" href="?page=notices">Notices</a></li>
+
                     <li class="nav-item d-flex align-items-center ms-lg-2">
                         <a class="btn  btn-outline-light me-2" href="views/login.php">Login</a>
                         <a class="btn btn-warning" href="views/signup.php?role=student">Join with Us</a>
@@ -531,12 +650,18 @@ ORDER BY a.submitted_at DESC LIMIT 3;
 
         <?php if (count($notices) > 0) { ?>
             <div class="notice-marquee">
+                <span class="notice-label">📢 Latest Notice</span>
                 <marquee behavior="scroll" direction="left" scrollamount="8" onmouseover="this.stop();"
                     onmouseout="this.start();">
-                    <?php foreach ($notices as $notice) { ?>
-                        <a href=<?php echo htmlspecialchars($notice['url']); ?> target="_blank"
+                    <?php foreach ($notices as $i => $notice) { ?>
+                        <a href="<?php echo htmlspecialchars($notice['url']); ?>" target="_blank" rel="noopener noreferrer"
                             style="color:white; text-decoration:none;"><strong>📢
-                                <?php echo htmlspecialchars($notice['title']); ?>:</strong> &bull;</a>
+                                <?php echo htmlspecialchars($notice['title']); ?></strong> 
+                                <?php if($i != count($notices)-1){ ?>
+                                    &bull;
+                            </a>
+                            <?php } ?>
+                                
                     <?php } ?>
 
                 </marquee>
@@ -548,12 +673,19 @@ ORDER BY a.submitted_at DESC LIMIT 3;
                     <section class="hero text-center"
                         style="background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('<?php baseurl('assets/header.jfif') ?>');background-size:cover;background-position:center;">
                         <div class="container">
-                            <h1>Connecting Readers & Student Journalists</h1>
-                            <p class="lead mt-3">
-                                Our mission is to build a meaningful relationship between readers and student writers,
-                                encouraging ethical journalism, informed voices, and campus dialogue.
-                            </p>
-                            <span class="badge badge-verify mt-3">🏆 Leaderboard celebrates top student journalists</span>
+                            <div class="hero-overlay-card">
+                                <h1>Connecting Readers & Student Journalists</h1>
+                                <p class="lead mt-3">
+                                    Our mission is to build a meaningful relationship between readers and student writers,
+                                    encouraging ethical journalism, informed voices, and campus dialogue.
+                                </p>
+                                <span class="badge badge-verify mt-3">🏆 Leaderboard celebrates top student
+                                    journalists</span>
+                                <div class="hero-actions">
+                                    <a href="?page=articles" class="btn btn-warning">Read Articles</a>
+                                    <a href="views/signup.php?role=student" class="btn btn-outline-light">Start Writing</a>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -562,10 +694,12 @@ ORDER BY a.submitted_at DESC LIMIT 3;
                     <section class="hero text-center"
                         style="background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('<?php baseurl('assets/header-1.jfif') ?>');background-size:cover;background-position:center;">
                         <div class="container">
-                            <h1>Student Voices, Campus Stories</h1>
-                            <p class="lead mt-3">
-                                Showcasing authentic campus reporting written by students and read by the community.
-                            </p>
+                            <div class="hero-overlay-card">
+                                <h1>Student Voices, Campus Stories</h1>
+                                <p class="lead mt-3">
+                                    Showcasing authentic campus reporting written by students and read by the community.
+                                </p>
+                            </div>
 
                         </div>
                     </section>
@@ -575,11 +709,13 @@ ORDER BY a.submitted_at DESC LIMIT 3;
                     <section class="hero text-center"
                         style="background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('<?php baseurl('assets/header-2.jfif') ?>');background-size:cover;background-position:center;">
                         <div class="container">
-                            <h1>Read. Write. Lead.</h1>
-                            <p class="lead mt-3">
-                                Empowering the next generation of journalists through ethical reporting and leadership.
-                            </p>
-                            <span class="badge badge-verify mt-3">🎓 Department of Journalism Initiative</span>
+                            <div class="hero-overlay-card">
+                                <h1>Read. Write. Lead.</h1>
+                                <p class="lead mt-3">
+                                    Empowering the next generation of journalists through ethical reporting and leadership.
+                                </p>
+                                <span class="badge badge-verify mt-3">🎓 Department of Journalism Initiative</span>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -593,92 +729,63 @@ ORDER BY a.submitted_at DESC LIMIT 3;
             </button>
         </div>
 
-        <section class="container my-5">
-            <div class="card shadow border-0">
-                <div class="card-header bg-success text-white d-flex align-items-center">
-                    <strong class="fs-5">📄 NOTICE Board</strong>
-                </div>
-                <div class="card-body" style="background:#eaf6f4">
-                    <div class="notice-board-anim">
-                        <ul class="notice-list">
-                            <?php foreach ($notices as $index => $notice) { ?>
-                                <li>
-                                    <a href="<?php echo htmlspecialchars($notice['url']); ?>" target="_blank"
-                                        style="color:black; text-decoration:none;">
-                                        <div class="d-flex align-items-center bg-white rounded p-3 mb-3 shadow-sm">
-                                            <div class="me-3 fs-2">📋</div>
-                                            <div class="flex-grow-1">
-                                                <div class="fw-semibold"><?php echo htmlspecialchars($notice['title']); ?></div>
-                                                <span class="badge bg-success mt-1">NEW</span>
-                                            </div>
-                                            <div class="text-center ms-3">
-                                                <div class="fs-4 fw-bold">
-                                                    <?php echo htmlspecialchars(date('d', strtotime($notice['at_publish']))); ?>
-                                                </div>
-                                                <small
-                                                    class="text-muted"><?php echo htmlspecialchars(date('M', strtotime($notice['at_publish']))); ?></small>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                            <?php } ?>
-                        </ul>
-                    </div>
-                    <a href="?page=notices" class="btn btn-success w-100 mt-3">VIEW ALL</a>
-                </div>
+        <section class="container home-section pt-4 pb-2 p-2 mb-2">
+            <div class="d-flex flex-wrap gap-3">
+                <span class="home-stat-chip">Published <span class="value"><?php echo count($articles); ?></span></span>
+                <span class="home-stat-chip">Top Authors <span class="value"><?php echo count($leaders); ?></span></span>
+                <span class="home-stat-chip">New Notices <span class="value"><?php echo count($notices); ?></span></span>
             </div>
         </section>
 
-
-        <section class="container my-5">
-            <div class="d-flex" style="align-items: center;justify-content: space-between;">
-                <h2 class="mb-4">Latest Approved Articles</h2>
-                <a href="?page=articles"><button type="button" class="btn btn-success">View All Articles</button></a>
+        <section class="container home-section p-2">
+            <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
+                <h2 class="section-heading">Latest Approved Articles</h2>
+                <a href="?page=articles" class="btn btn-link"
+                    style="color:green;text-decoration: underline; font-weight: 500;">View All Articles</a>
             </div>
 
             <div id="articles-page-1" class="row g-4 article-page">
                 <?php foreach ($articles as $article) { ?>
-                    <a href="?page=article&slug=<?php echo $article['slug']; ?>" style="text-decoration: none; color: inherit;">
-                        <div class="col-md-4"></div>
-
-                        <div>
-                            <div class="card article-card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title"><?php echo htmlspecialchars($article['title']); ?></h5>
-                                    <p class="text-muted small">✍️ <?php echo htmlspecialchars($article['author_name']); ?> · 📅
-                                        <?php echo date('d M', strtotime($article['submitted_at'])); ?>
-                                    </p>
-                                    <p class="card-text mt-2"><?php echo htmlspecialchars($article['description']); ?></p>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card article-card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span
+                                        class="category-badge"><?php echo htmlspecialchars($article['category_name'] ?? 'General'); ?></span>
+                                    <small
+                                        class="text-muted"><?php echo date('d M Y', strtotime($article['submitted_at'])); ?></small>
                                 </div>
+                                <h5 class="card-title"><?php echo htmlspecialchars($article['title']); ?></h5>
+                                <p class="text-muted small mb-2">By <?php echo htmlspecialchars($article['author_name']); ?></p>
+                                <p class="card-text mt-2 flex-grow-1"><?php echo htmlspecialchars($article['description']); ?>
+                                </p>
+                                <a href="?page=article&slug=<?php echo $article['slug']; ?>"
+                                    class="btn btn-outline-primary mt-2">Read More</a>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 <?php } ?>
 
             </div>
         </section>
 
-        <section class="container my-5">
-            <h2 class="mb-4">🏆 Top Authors Leaderboard</h2>
+        <section class="container home-section pt-2 p-2">
+            <h2 class="section-heading mb-4">🏆 Top Authors Leaderboard</h2>
             <ul class="list-unstyled leaderboard">
                 <?php
                 $rank = 1;
                 foreach ($leaders as $leader) { ?>
-                    <li>
-                        <span><?php echo $rank++; ?>. <?php echo htmlspecialchars($leader['name']); ?></span>
+                    <li class="<?php echo $rank <= 3 ? 'top-rank' : ''; ?>">
+                        <span class="d-flex align-items-center">
+                            <span class="rank-badge"><?php echo $rank++; ?></span>
+                            <?php echo htmlspecialchars($leader['name']); ?>
+                        </span>
                         <span><?php echo htmlspecialchars($leader['final_marks']); ?> Points</span>
                     </li>
                 <?php } ?>
             </ul>
         </section>
 
-        <section class="container my-5">
-            <h2 class="mb-3">Faculty Review Process</h2>
-            <p>
-                Articles are submitted by students and reviewed by journalism faculty members.
-                Only approved articles are published to maintain ethical and academic standards.
-            </p>
-        </section>
     <?php } else if ($page == 'leaderboard') {
         include_once './views/components/leaderboard.php';
     } else if ($page == 'articles') {
@@ -693,7 +800,10 @@ ORDER BY a.submitted_at DESC LIMIT 3;
         include_once './views/components/privacy_policy.php';
     } else if ($page == 'contact') {
         include_once './views/components/contact.php';
-    } else {
+    } else if ($page == 'category') {
+        include_once './views/components/category.php';
+    }
+     else {
         include_once './views/404.php';
     } ?>
     <footer>
@@ -701,7 +811,7 @@ ORDER BY a.submitted_at DESC LIMIT 3;
             <div class="footer-brand">
                 <div class="logo-container">
                     <div class="logo-icon"></div>
-                    <span class="logo-text">Scriptores</span>
+                    <span class="logo-text">The Digital Scape</span>
                 </div>
                 <p class="footer-description">
                     A single Platform for all students of behala college to write and share their ideas and thoughts.
@@ -732,81 +842,23 @@ ORDER BY a.submitted_at DESC LIMIT 3;
         </div>
 
         <div class="footer-bottom">
-            <p>Copyright © 2024, Scriptores, All Rights Reserved.</p>
+            <p>Copyright © 2026, The Digital Scape, All Rights Reserved.</p>
         </div>
     </footer>
 
     <script src="<?php baseurl('js/bootstrap.bundle.min.js') ?>"></script>
 
     <script>
-        const backToTopBtn = document.getElementById('backToTop');
-
-        backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-        const notices = document.querySelectorAll('.notice-list li');
-        let current = 0;
         document.addEventListener('DOMContentLoaded', function () {
-            const pages = document.querySelectorAll('.article-page');
-            const paginationLinks = document.querySelectorAll('.pagination .page-item');
-            const prevButton = document.getElementById('prev-page');
-            const nextButton = document.getElementById('next-page');
-            let currentPage = 1;
-
-            function showPage(pageNumber) {
-                pages.forEach(page => {
-                    page.style.display = 'none';
-                });
-                document.getElementById(`articles-page-${pageNumber}`).style.display = 'flex'; // Use flex for row
-
-                // Re-trigger fade-in animation for cards on the new page
-                document.querySelectorAll(`#articles-page-${pageNumber} .article-card`).forEach(card => {
-                    card.style.animation = 'none';
-                    card.offsetHeight; /* Trigger reflow */
-                    card.style.animation = '';
-                });
-
-                paginationLinks.forEach(link => {
-                    link.classList.remove('active');
-                });
-                document.querySelector(`.pagination .page-item[data-page="${pageNumber}"]`).classList.add('active');
-
-                // Update disabled states
-                prevButton.classList.toggle('disabled', pageNumber === 1);
-                nextButton.classList.toggle('disabled', pageNumber === pages.length);
-
-                currentPage = pageNumber;
-            }
-
-            paginationLinks.forEach(item => {
-                const pageNum = parseInt(item.getAttribute('data-page'));
-                if (pageNum) {
-                    item.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        showPage(pageNum);
+            const backToTopBtn = document.getElementById('backToTop');
+            if (backToTopBtn) {
+                backToTopBtn.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
                     });
-                }
-            });
-
-            prevButton.addEventListener('click', function (e) {
-                if (currentPage > 1) {
-                    e.preventDefault();
-                    showPage(currentPage - 1);
-                }
-            });
-
-            nextButton.addEventListener('click', function (e) {
-                if (currentPage < pages.length) {
-                    e.preventDefault();
-                    showPage(currentPage + 1);
-                }
-            });
-
-            // Initialize with the first page
-            showPage(1);
+                });
+            }
         });
     </script>
 </body>

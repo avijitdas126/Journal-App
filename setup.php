@@ -57,7 +57,7 @@ switch ($method) {
             $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
             db_setup($conn);
             db_close($conn);
-            header("Location: http://localhost/Journal/setup.php");
+            header("Location:". $base_url ."/setup.php");
         }
         break;
     case "GET":
@@ -138,7 +138,7 @@ switch ($method) {
             </body>
             <?php
         } else {
-            header("Location: http://localhost/Journal/views/login.php");
+            header("Location:". $base_url."/views/login.php");
         }
         break;
 

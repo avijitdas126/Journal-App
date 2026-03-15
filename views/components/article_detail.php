@@ -14,6 +14,7 @@ $sql="SELECT
     a.slug,
     a.submitted_at,
     c.category AS category_name,
+    c.slug,
 
     -- author display name
     COALESCE(s.name, ad.name) AS author_name,
@@ -55,8 +56,8 @@ if(!$article){
             background: #f5f7fa;
         }
         .article-header {
-            background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
-            color: white;
+            /* background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%); */
+            /* color: white; */
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 2rem;
@@ -82,14 +83,14 @@ if(!$article){
             opacity: 0.95;
         }
         .meta-item a {
-            color: white;
+            color: black;
             text-decoration: none;
             font-weight: 500;
             border-bottom: 2px solid rgba(255, 255, 255, 0.5);
             transition: border-color 0.2s;
         }
         .meta-item a:hover {
-            border-bottom-color: white;
+            border-bottom-color: black;
         }
         .author-section {
             display: flex;
@@ -115,7 +116,7 @@ if(!$article){
         .article-content h2,
         .article-content h3,
         .article-content h4 {
-            color: #1976d2;
+            /* color: #1976d2; */
             margin-top: 2rem;
             margin-bottom: 1rem;
             font-weight: 600;
@@ -196,7 +197,8 @@ if(!$article){
                     </div>
                     <?php if($article['category_name']){ ?>
                     <div class="meta-item">
-                        🏷️ <?php echo htmlspecialchars($article['category_name']); ?>
+
+                        🏷️ <a href="?page=category&slug=<?php echo $article['slug']; ?>"><?php echo htmlspecialchars($article['category_name']); ?></a>
                     </div>
                     <?php } ?>
                 </div>

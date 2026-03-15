@@ -36,7 +36,7 @@ switch ($method) {
             $content_json = json_encode($raw_content_json, JSON_UNESCAPED_UNICODE);
         }
         $content_html = $input['content_html'];
-        
+
         try {
             // Connect to DB
             $conn = db_conn(
@@ -48,7 +48,7 @@ switch ($method) {
 
             $sql = "SELECT * FROM `article` WHERE `article_id` = $article_id;";
             $success = $conn->query($sql);
-            $row=$success->fetchAll();
+            $row = $success->fetchAll();
             if (count($row)) {
                 if (!$isfull) {
                     $sql = "UPDATE `article` 
@@ -105,12 +105,13 @@ switch ($method) {
             } else {
                 $sql = "
                  INSERT INTO `article` 
-                 ( `article_id`,`author_id`, `author_type`, `title`, `slug`, `status`, `category`, `content_json`, `content_html`, `submitted_at`, `published_at`, `created_at`, `updated_at`, `deleted_at`)
+                 ( `article_id`,`author_id`, `author_type`, `title`,'description', `slug`, `status`, `category`, `content_json`, `content_html`, `submitted_at`, `published_at`, `created_at`, `updated_at`, `deleted_at`)
                     VALUES (
                         :article_id,
                         :id, 
                         :type,
                         :title,
+                        :description,
                         :slug,
                         :status,
                         :category_id,
@@ -134,7 +135,8 @@ switch ($method) {
                     ':category_id' => $category_id,
                     ':status' => $status,
                     ':content_json' => $content_json,
-                    ':content_html' => $content_html
+                    ':content_html' => $content_html,
+                    ':description' => $description
                 ]);
                 http_response_code(200);
                 $article_id = $conn->lastInsertId();

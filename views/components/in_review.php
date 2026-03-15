@@ -7,7 +7,13 @@ $id = $_GET['id']; // article_id
 // ---------------------
 // GET ARTICLE
 // ---------------------
-$sql = "SELECT * FROM article WHERE article_id = :id";
+$sql = "SELECT article.*, -- author name (student or admin)
+    COALESCE(s.name, ad.name) AS author_name FROM article LEFT JOIN students s 
+    ON article.author_id = s.user_id 
+   AND article.author_type = 'student'
+LEFT JOIN admins ad 
+    ON article.author_id = ad.admin_id 
+   AND article.author_type IN ('admin', 'teacher') WHERE article_id = :id";
 $stmt = $conn->prepare($sql);
 $stmt->execute([':id' => $id]);
 $article = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -29,10 +35,15 @@ $category = $stmt->fetch(PDO::FETCH_ASSOC);
 // GET ALL PREVIOUS REVIEWS (student revisions)
 // ---------------------
 
-$sql = "
-    SELECT rev.*, s.name AS student_name 
-    FROM revisions rev
-    LEFT JOIN students s ON s.user_id = rev.author_id
+$sql = "SELECT rev.*,COALESCE(s.name, ad.name) AS author_name
+    FROM revisions rev 
+    JOIN article AS A ON A.article_id=rev.article_id
+    LEFT JOIN students s 
+    ON rev.author_id = s.user_id AND
+    A.author_type='student'
+    LEFT JOIN admins ad 
+    ON rev.author_id = ad.admin_id 
+    AND A.author_type IN ('admin', 'teacher')
     WHERE rev.article_id = :id
     ORDER BY rev.updated_at ASC;
 ";
@@ -57,7 +68,7 @@ $revisions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php } ?>
 
                     <span class="badge bg-secondary">
-                        Author ID: <?php echo htmlspecialchars($article['author_id']); ?>
+                        Author: <?php echo htmlspecialchars($article['author_name']); ?>
                     </span>
                 </div>
             </div>
@@ -86,7 +97,7 @@ $revisions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="card mb-3">
                         <div class="card-body">
                             <span class="badge bg-info ">
-                                Author: <?php echo htmlspecialchars($rev['author_id'] ?? "Student"); ?>
+                                Author: <?php echo htmlspecialchars($rev['author_name'] ?? "Student"); ?>
                             </span>
                             <span class="badge bg-secondary float-end">
                                 <?php echo htmlspecialchars($rev['updated_at']); ?>
@@ -104,7 +115,7 @@ $revisions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <!-- REVIEW SUBMISSION FORM -->
         <div class="row py-2">
             <div class="col-12 mb-5">
-                <form action="http://localhost/Journal/views/components/api/submit_review.php" method="POST">
+                <form action="<?php echo $base_url;?>/views/components/api/submit_review.php" method="POST">
                     <input type="hidden" name="article_id" value="<?php echo $id ?>">
                     <input type="hidden" name="reviewer_id" value="<?php echo $_SESSION['user_id'] ?>">
                     <div class="mb-3">

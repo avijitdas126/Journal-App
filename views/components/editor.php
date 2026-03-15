@@ -1,6 +1,7 @@
 <?php
 $id = $_GET['id'];
 $page = $_GET['page'];
+require_once __DIR__ . '/../../utils/base.php';
 require_once __DIR__ . '/../../utils/db_conn.php';
 $conn = db_conn(
   Env('servername'),
@@ -36,7 +37,7 @@ $mode = $_GET['mode'] ?? 'draft';
       <div class="mb-3">
         <label for="exampleFormControlInput1" class="form-label">Description of Article: <span
             class="badge text-bg-secondary" id="badged"></span></label>
-        <input type="text" class="form-control" id="desinput" placeholder="Enter the description of your article">
+        <input type="text" class="form-control" name="description" id="desinput" placeholder="Enter the description of your article">
       </div>
       <div class="editor-scroll-box">
         <div id="editorjs"></div>
@@ -378,7 +379,7 @@ $mode = $_GET['mode'] ?? 'draft';
   })
   let run = async (payload) => {
     try {
-      const response = await fetch('http://localhost/journal/views/components/api/add.php', {
+      const response = await fetch('<?php echo $base_url; ?>/views/components/api/add.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -444,8 +445,8 @@ $mode = $_GET['mode'] ?? 'draft';
         title: window.localStorage.getItem("article_title") || "Untitled Article",
         status: <?php if ($mode == 'draft') {
           echo '"draft"';
-        } else {
-          echo '"submitted"';
+        } else if($mode=='published') {
+          echo '"published"';
         } ?>,
         slug: window.localStorage.getItem("article_title") ? "<?php echo $_SESSION['username']; ?>_" + window.localStorage.getItem("article_title").toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') + '_' + <?php echo $id; ?> : "<?php echo $_SESSION['username']; ?>_" + "untitled-article_" + <?php echo $id; ?>,
         content_json: savedData,
@@ -453,7 +454,7 @@ $mode = $_GET['mode'] ?? 'draft';
       }
       console.log(JSON.stringify(payload))
       // Replace with your actual API endpoint and saving logic
-      const response = await fetch('http://localhost/journal/views/components/api/add.php', {
+      const response = await fetch('<?php echo $base_url;?>/views/components/api/add.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -513,8 +514,8 @@ $mode = $_GET['mode'] ?? 'draft';
         class: ImageTool,
         config: {
           endpoints: {
-            byFile: 'http://localhost/Journal/views/components/api/asset.php', // Your backend file uploader endpoint
-            byUrl: 'http://localhost/Journal/views/components/api/asset.php', // Your endpoint that provides uploading by Url
+            byFile: '<?php echo $base_url;?>/views/components/api/asset.php', // Your backend file uploader endpoint
+            byUrl: '<?php echo $base_url;?>/views/components/api/asset.php', // Your endpoint that provides uploading by Url
           }
         }
       },
@@ -535,7 +536,7 @@ $mode = $_GET['mode'] ?? 'draft';
 
       try {
         const article_id = <?php echo $id; ?>;
-        const res = await fetch(`http://localhost/journal/views/components/api/get.php?article_id=${article_id}`);
+        const res = await fetch(`<?php echo $base_url;?>/views/components/api/get.php?article_id=${article_id}`);
         const data = await res.json();
 
         if (!res.ok) throw new Error("API error");
@@ -563,7 +564,7 @@ $mode = $_GET['mode'] ?? 'draft';
     <?php if ($page == "add_article") { ?>
       try {
         const article_id = <?php echo $id; ?>;
-        const res = await fetch(`http://localhost/journal/views/components/api/get.php?article_id=${article_id}`);
+        const res = await fetch(`<?php echo $base_url;?>/views/components/api/get.php?article_id=${article_id}`);
         const data = await res.json();
         if (!res.ok) {
           if (local && local !== "") {

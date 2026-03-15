@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../utils/db_conn.php';
 $id = $_SESSION['user_id'];
 $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
-$articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'draft' AND `author_id` = $id ORDER BY `updated_at` DESC;")->fetchAll(PDO::FETCH_ASSOC);
+$articles = $conn->query("SELECT * FROM `article`  WHERE `status` = 'draft' AND `author_id` = $id ORDER BY `updated_at` DESC;")->fetchAll(PDO::FETCH_ASSOC);
 $in_review_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'review' AND `author_id` = $id ORDER BY `updated_at` DESC;")->fetchAll(PDO::FETCH_ASSOC);
 $published_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'published' AND `author_id` = $id;")->fetchAll(PDO::FETCH_ASSOC);
 $rejected_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'rejected' AND `author_id` = $id;")->fetchAll(PDO::FETCH_ASSOC);
@@ -146,7 +146,7 @@ $submitted_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'su
                     <tr>
                         <th>Article Id</th>
                         <th>Title</th>
-                        <th>Category</th>
+                     
                         <th>Date Updated</th>
                         <th>Actions</th>
                     </tr>
@@ -156,7 +156,6 @@ $submitted_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'su
                         <tr>
                             <td><?php echo $article['article_id'] ?></td>
                             <td><?php echo $article['title'] ?></td>
-                            <td><?php echo $article['category'] ?></td>
                             <td><?php echo $article['updated_at'] ?></td>
                             <td>
                                 <button class="btn btn-sm btn-primary"
@@ -179,7 +178,6 @@ $submitted_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'su
                     <tr>
                         <th>Article Id</th>
                         <th>Title</th>
-                        <th>Category</th>
                         <th>Date Updated</th>
                         <th>Actions</th>
                     </tr>
@@ -189,7 +187,6 @@ $submitted_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'su
                         <tr>
                             <td><?php echo $article['article_id'] ?></td>
                             <td><?php echo $article['title'] ?></td>
-                            <td><?php echo $article['category'] ?></td>
                             <td><?php echo $article['updated_at'] ?></td>
                             <td>
                                 <button class="btn btn-sm btn-primary"
@@ -214,7 +211,6 @@ $submitted_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'su
                     <tr>
                         <th>Article Id</th>
                         <th>Title</th>
-                        <th>Category</th>
                         <th>Date Updated</th>
                         <th>Actions</th>
                     </tr>
@@ -224,7 +220,6 @@ $submitted_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'su
                         <tr>
                             <td><?php echo $article['article_id'] ?></td>
                             <td><?php echo $article['title'] ?></td>
-                            <td><?php echo $article['category'] ?></td>
                             <td><?php echo $article['updated_at'] ?></td>
                             <td>
                                 <button class="btn btn-sm btn-primary"
@@ -248,7 +243,6 @@ $submitted_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'su
                     <tr>
                         <th>Article Id</th>
                         <th>Title</th>
-                        <th>Category</th>
                         <th>Date Updated</th>
                         <th>Actions</th>
                     </tr>
@@ -258,7 +252,6 @@ $submitted_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'su
                         <tr>
                             <td><?php echo $article['article_id'] ?></td>
                             <td><?php echo $article['title'] ?></td>
-                            <td><?php echo $article['category'] ?></td>
                             <td><?php echo $article['updated_at'] ?></td>
                             <td>
                                 <button class="btn btn-sm btn-primary"

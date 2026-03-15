@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../../utils/base.php';
 require_once __DIR__ . '/../../../utils/db_conn.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $conn = db_conn(
@@ -35,7 +36,7 @@ switch ($method) {
                     ':article_id' => $article_id,
                     ':author_id' => $author_id
                 ]);
-                header("Location: http://localhost/Journal/views/dashboard.php?page=article");
+                header("Location: ".$base_url."/views/dashboard.php?page=article");
             }
         } catch (PDOException $e) {
             // echo "Error: " . $e->getMessage();

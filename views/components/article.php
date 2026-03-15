@@ -1,10 +1,10 @@
 <?php
 require_once __DIR__ . '/../../utils/db_conn.php';
 $id = $_SESSION['user_id'];
-$sql = "SELECT * FROM `article` WHERE `status` = 'draft' AND `author_id` = $id ORDER BY `updated_at` DESC;";
+$sql = "SELECT `article`.*, c.category AS category_name FROM `article` Join category c ON `article`.category = c.id WHERE `status` = 'draft' AND `author_id` = $id ORDER BY `updated_at` DESC;";
 $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
 $articles = $conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-$sql = "SELECT * FROM `article` WHERE `status` = 'review' AND `author_id` = $id ORDER BY `updated_at` DESC;";
+$sql = "SELECT `article`.*, c.category AS category_name FROM `article` Join category c ON `article`.category = c.id WHERE `status` = 'review' AND `author_id` = $id ORDER BY `updated_at` DESC;";
 $in_review_articles = $conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
@@ -48,7 +48,7 @@ $in_review_articles = $conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
                             <tr>
                                 <td><?php echo $article['article_id'] ?></td>
                                 <td><?php echo $article['title'] ?></td>
-                                <td><?php echo $article['category'] ?></td>
+                                <td><?php echo $article['category_name'] ?></td>
                                 <td><?php echo $article['updated_at'] ?></td>
                                 <td>
                                     <button class="btn btn-sm btn-primary"
@@ -90,7 +90,7 @@ $in_review_articles = $conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
                             <tr>
                                 <td><?php echo $article['article_id'] ?></td>
                                 <td><?php echo $article['title'] ?></td>
-                                <td><?php echo $article['category'] ?></td>
+                                <td><?php echo $article['category_name'] ?></td>
                                 <td><?php echo $article['updated_at'] ?></td>
                                 <td>
                                     <button class="btn btn-sm btn-primary"

@@ -1,5 +1,5 @@
 <?php
-
+require_once __DIR__ . '/../../../utils/base.php';
 require_once __DIR__ . '/../../../utils/db_conn.php';
 session_start();
 
@@ -12,9 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $article_id      = $_POST['article_id'];
 $student_id      = $_POST['student_id'];
 $new_title       = $_POST['article_title'];
-$new_category    = $_POST['catagory'];
+$new_category    = $_POST['category'];
 $content_json    = $_POST['content_json'];
 $content_html    = $_POST['content_html'];
+$description=$_POST['description'];
 $student_message = $_POST['student_message'] ?? "";
 
 // --------------------------------------------
@@ -51,6 +52,7 @@ $update_sql = "
     UPDATE article 
     SET 
         title = :title,
+        description= :description,
         category = :category,
         content_json = :json,
         content_html = :html,
@@ -62,6 +64,7 @@ $update_sql = "
 $stmt = $conn->prepare($update_sql);
 $stmt->execute([
     ':title'    => $new_title,
+    ':description' => $description,
     ':category' => $new_category,
     ':json'     => $content_json,
     ':html'     => $content_html,
@@ -71,7 +74,7 @@ $stmt->execute([
 // --------------------------------------------
 // 4. Redirect back
 // --------------------------------------------
-header("Location: http://localhost/Journal/views/dashboard.php?page=edit_review_article&id=" . $article_id);
+header("Location: ".$base_url."/views/dashboard.php?page=edit_review_article&id=" . $article_id);
 exit;
 
 ?>

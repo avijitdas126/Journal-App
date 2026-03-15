@@ -1,46 +1,47 @@
-<?php 
-
+<?php
 require_once __DIR__ . '/../../utils/db_conn.php';
-$conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
-$sql="SELECT 
-    a.article_id,
-    a.title,
-    a.description,
-    s.username,
-    s.avatar_url,
-    a.slug AS Article_Slug,
-    a.submitted_at,
-    c.category AS category_name,
-    c.slug,
+
+$id = $_SESSION['user_id'];
+$sql = "SELECT A.article_id,
+    A.title,
+    A.description,
+    A.slug,
+    A.submitted_at,
+    A.category AS category_id,
+    C.category,
     -- author name (student or admin)
     COALESCE(s.name, ad.name) AS author_name,
-    a.author_type
-
-FROM article a
-LEFT JOIN category c 
-    ON a.category = c.id
-
+    A.author_type FROM article AS A JOIN category AS C ON C.id=A.category 
 LEFT JOIN students s 
-    ON a.author_id = s.user_id 
-   AND a.author_type = 'student'
-
+    ON A.author_id = s.user_id 
+   AND A.author_type = 'student'
 LEFT JOIN admins ad 
-    ON a.author_id = ad.admin_id 
-   AND a.author_type IN ('admin', 'teacher')
-
-WHERE a.status = 'published'
-ORDER BY a.submitted_at DESC;
-";
-$articles=$conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-
+    ON A.author_id = ad.admin_id 
+   AND A.author_type IN ('admin', 'teacher') 
+   WHERE A.status='published' AND C.slug=:slug
+   ORDER BY A.submitted_at DESC;
+   ";
+$conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
+$method = $_SERVER['REQUEST_METHOD'];
+switch ($method) {
+    case 'GET':
+        $slug = trim($_GET['slug']);
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([':slug' => $slug ]);
+        $artic= $stmt->fetchAll(PDO::FETCH_ASSOC);
+       
+}
 ?>
+
 
 <head>
     <title>
-        Published Articles
+       <?php 
+       echo ucfirst($slug).' :';
+       ?> Recent Published Articles
     </title>
 </head>
-<div class="container mb-3" style=" padding-top:20px;">
+<div class="container" style="height: 100vh; padding-top:20px;">
     <div class="row py-2">
         <div class="col-12 d-flex" style="justify-content: space-between;align-items: center;">
             <h1>
@@ -48,14 +49,16 @@ $articles=$conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
             </h1>
         </div>
     </div>
-    <div class="row py-4 ">
+    <div class="row py-4">
         <div class="col-12">
-            <?php if(count($articles) == 0){ ?>
+            <?php if(count($artic) == 0){ ?>
                 <p>No articles have been published yet.</p>
             <?php } ?>
             <div id="articles-page-1" class="row g-4 article-page">
-            <?php foreach($articles as $article){ ?>
-           <a href="?page=article&slug=<?php echo $article['Article_Slug']; ?>" style="text-decoration: none; color: inherit;"> <div style="overflow-x:auto; width:100%">
+            <?php foreach($artic as $article){ 
+                ?>
+            
+           <a href="?page=article&slug=<?php echo $article['slug']; ?>" style="text-decoration: none; color: inherit;"> <div style="overflow-x:auto; width:100%">
                 <div>
                 <div class="card article-card h-100">
                     <div class="card-body">
@@ -72,3 +75,6 @@ $articles=$conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     </div>
     </div>
 </div>
+
+
+

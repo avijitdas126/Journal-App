@@ -9,6 +9,8 @@ require_once __DIR__ . '/../utils/base.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?php baseurl("css/bootstrap.min.css") ?>" />
     <link rel="stylesheet" href="<?php baseurl("css/style.css") ?>" />
+    <link rel="shortcut icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
+    <link rel="icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
     <title>404 page</title>
 </head>
 

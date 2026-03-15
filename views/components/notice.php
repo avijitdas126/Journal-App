@@ -1,5 +1,5 @@
 <?php
-
+require_once __DIR__ . '/../../utils/base.php';
 require_once __DIR__ . '/../../utils/db_conn.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
@@ -33,7 +33,7 @@ if ($method === 'POST') {
         $filename = bin2hex(random_bytes(8)) . '.' . $ext;
         move_uploaded_file($_FILES['notice_file']['tmp_name'], $uploadDir . $filename);
 
-        $url = "http://localhost/Journal/uploads/notices/" . $filename;
+        $url = "/uploads/notices/" . $filename;
 
         $stmt = $conn->prepare(
             "INSERT INTO notices (title, url, author_id, at_publish) VALUES (?, ?, ?, NOW())"

@@ -8,7 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?php baseurl("css/bootstrap.min.css") ?>" />
     <link rel="stylesheet" href="<?php baseurl("css/style.css") ?>" />
-    <title>Terms of Services - Scriptores</title>
+    <link rel="shortcut icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
+    <link rel="icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
+    <title>Terms of Services - The Digital Scape</title>
     <style>
         .terms-container {
             max-width: 800px;
@@ -35,20 +37,20 @@
 <body style="background-color: #f5f5f5; margin: 0; padding: 20px;">
     <div class="terms-container">
         <h1>Terms of Services</h1>
-        <p>Welcome to Scriptores. By accessing or using our platform, you agree to comply with and be bound by the following terms and conditions:</p>
+        <p>Welcome to The Digital Scape. By accessing or using our platform, you agree to comply with and be bound by the following terms and conditions:</p>
         
         <h2>1. Acceptance of Terms</h2>
-        <p>By using Scriptores, you agree to these Terms of Services and our Privacy Policy. If you do not agree, please do not use our platform.</p>
+        <p>By using The Digital Scape, you agree to these Terms of Services and our Privacy Policy. If you do not agree, please do not use our platform.</p>
         
         <h2>2. User Responsibilities</h2>
         <ul>
             <li>You are responsible for maintaining the confidentiality of your account information.</li>
-            <li>You agree to use Scriptores in compliance with all applicable laws and regulations.</li>
+            <li>You agree to use The Digital Scape in compliance with all applicable laws and regulations.</li>
             <li>You will not post content that is unlawful, harmful, or infringes on the rights of others.</li>
         </ul>
         
         <h2>3. Content Ownership</h2>
-        <p>All content you submit remains your property. However, by submitting content to Scriptores, you grant us a non-exclusive, worldwide, royalty-free license to use, display, and distribute your content on our platform.</p>
+        <p>All content you submit remains your property. However, by submitting content to The Digital Scape, you grant us a non-exclusive, worldwide, royalty-free license to use, display, and distribute your content on our platform.</p>
         
         <h2>4. Termination</h2>
         <p>We reserve the right to terminate or suspend your account at any time for violations of these terms or for any reason deemed necessary.</p>

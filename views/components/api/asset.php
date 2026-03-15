@@ -3,6 +3,7 @@
 $uploadDir = __DIR__ . "/../../../uploads/"; // absolute path
 $uploadUrl = "/Journal/uploads/"; // adjust to your public URL
 require_once __DIR__ . '/../../../utils/db_conn.php';
+require_once __DIR__ . '/../../../utils/base.php';
 $output = ["success" => 0];
 session_start();
 // --- Check if user is logged in ---
@@ -34,7 +35,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     if (move_uploaded_file($tmpName, $uploadDir . $newfilename)) {
 
         $output["success"] = 1;
-        $output["file"]["url"] = "http://localhost/Journal/uploads/" . $newfilename; // correct URL for frontend
+        $output["file"]["url"] = "$base_url/uploads/" . $newfilename; // correct URL for frontend
         $sql = "INSERT INTO `asset` (`alt`, `url`, `author_id`) VALUES ( :alt, :url, :id)";
         $stmt = $conn->prepare($sql);
         $success = $stmt->execute([

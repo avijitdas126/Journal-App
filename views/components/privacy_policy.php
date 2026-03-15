@@ -8,7 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?php baseurl("css/bootstrap.min.css") ?>" />
     <link rel="stylesheet" href="<?php baseurl("css/style.css") ?>" />
-    <title>Privacy Policy - Journal</title>
+    <link rel="shortcut icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
+    <link rel="icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
+    <title>Privacy Policy - The Digital Scape</title>
     <style>
         body {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -29,7 +31,7 @@
             border-bottom: 3px solid #1976d2;
         }
         .policy-header h1 {
-            color: #1976d2;
+            /* color: #1976d2; */
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
@@ -39,7 +41,7 @@
             font-size: 0.95rem;
         }
         .policy-content h2 {
-            color: #1976d2;
+            /* color: #1976d2; */
             font-size: 1.5rem;
             font-weight: 600;
             margin-top: 2rem;
@@ -97,7 +99,7 @@
     <div class="policy-container">
         <div class="policy-header">
             <h1>Privacy Policy</h1>
-            <p class="last-updated">Last Updated: December 2025</p>
+            <p class="last-updated">Last Updated: March 2026</p>
         </div>
 
         <div class="policy-content">
@@ -182,18 +184,11 @@
             <h2>11. Changes to This Privacy Policy</h2>
             <p>We may update this Privacy Policy periodically. We will notify you of significant changes by posting the updated policy on this page with an updated "Last Updated" date. Your continued use of our platform constitutes acceptance of the updated Privacy Policy.</p>
 
-            <h2>12. Contact Us</h2>
-            <p>If you have questions about this Privacy Policy or our privacy practices, please contact us at:</p>
-            <div class="highlight-box">
-                <strong>Email:</strong> <?php echo Env('email') ?? 'support@journal.app'; ?><br>
-                <strong>Address:</strong> Your Company Address<br>
-                <strong>Phone:</strong> +1 (XXX) XXX-XXXX
-            </div>
 
-            <h2>13. Data Protection Officer</h2>
+            <h2>12. Data Protection Officer</h2>
             <p>If you have concerns about our data processing practices, you may contact our Data Protection Officer or your local data protection authority.</p>
 
-            <h2>14. Governing Law</h2>
+            <h2>13. Governing Law</h2>
             <p>This Privacy Policy is governed by and construed in accordance with applicable laws, and you irrevocably submit to the exclusive jurisdiction of the courts in that location.</p>
 
             <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eee; color: #999;">

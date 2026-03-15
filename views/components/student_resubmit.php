@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../utils/base.php';
 require_once __DIR__ . '/../../utils/db_conn.php';
 $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
 
@@ -8,7 +9,13 @@ $student_id = $_SESSION['user_id'];
 // --------------------
 // GET ARTICLE
 // --------------------
-$sql = "SELECT * FROM article WHERE article_id = :id AND author_id = :student";
+$sql = "SELECT article.*, -- author name (student or admin)
+    COALESCE(s.name, ad.name) AS author_name FROM article LEFT JOIN students s 
+    ON article.author_id = s.user_id 
+   AND article.author_type = 'student'
+LEFT JOIN admins ad 
+    ON article.author_id = ad.admin_id 
+   AND article.author_type IN ('admin', 'teacher') WHERE article_id = :id AND author_id = :student";
 $stmt = $conn->prepare($sql);
 $stmt->execute([':id' => $article_id, ':student' => $student_id]);
 $article = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -50,7 +57,7 @@ $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php if ($category) { ?>
                 <span class="badge bg-info text-dark">Category: <?php echo $category['category']; ?></span>
             <?php } ?>
-            <span class="badge bg-secondary">Author ID: <?php echo $article['author_id']; ?></span>
+            <span class="badge bg-secondary">Author: <?php echo $article['author_name']; ?></span>
             <span class="badge bg-warning text-dark">Status: <?php echo $article['status']; ?></span>
         </div>
     </div>
@@ -78,7 +85,7 @@ $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Editor Section -->
     <h4>Revise Your Article</h4>
     
-    <form action="http://localhost/Journal/views/components/api/student_resubmit.php" method="POST"
+    <form action="<?php echo $base_url;?>/views/components/api/student_resubmit.php" method="POST"
         >
 
         <input type="hidden" name="article_id" value="<?php echo $article_id; ?>">
@@ -90,7 +97,7 @@ $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="mb-3">
             <label for="exampleFormControlInput1" class="form-label">Category: </label>
-          <select class="form-select" aria-label="role" name="catagory" id="category_id" required>
+          <select class="form-select" aria-label="role" name="category" id="category_id" required>
     <option value="">Select a category</option>
     <?php
     $stmt = $conn->prepare("SELECT * FROM `category`;");
@@ -403,8 +410,8 @@ $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 class: ImageTool,
                 config: {
                     endpoints: {
-                        byFile: 'http://localhost/Journal/views/components/api/asset.php', // Your backend file uploader endpoint
-                        byUrl: 'http://localhost/Journal/views/components/api/asset.php', // Your endpoint that provides uploading by Url
+                        byFile: '<?php echo $base_url;?>/views/components/api/asset.php', // Your backend file uploader endpoint
+                        byUrl: '<?php echo $base_url;?>/views/components/api/asset.php', // Your endpoint that provides uploading by Url
                     }
                 }
             },

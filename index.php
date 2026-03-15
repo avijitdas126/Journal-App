@@ -12,7 +12,7 @@ switch ($method) {
             $username = trim($_POST['username']);
             $password = trim($_POST['password']);
             $db = trim($_POST['db']);
-            $content = "servername=$servername\nusername=$username\npassword=$password\ndb=$db\nemail=\npassword_email=";
+            $content = "servername=$servername\nusername=$username\npassword=$password\ndb=$db\nemail=\npassword_email=\nbase_url=";
             $file = fopen('.env', 'w');
             if ($file) {
                 fwrite($file, $content);
@@ -48,6 +48,8 @@ switch ($method) {
             <head>
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <link rel="shortcut icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
+                <link rel="icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
                 <link rel="stylesheet" href="<?php baseurl("css/bootstrap.min.css") ?>" />
                 <link rel="stylesheet" href="<?php baseurl("css/style.css") ?>" />
                 <title>Setup page</title>
@@ -92,7 +94,7 @@ switch ($method) {
             <?php
 
         } else {
-            header("Location: http://localhost/Journal/main.php");
+            header("Location: ". $base_url ."/main.php");
         }
         break;
     default:
