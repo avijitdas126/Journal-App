@@ -1,13 +1,26 @@
 <?php
 require_once __DIR__ . '/../utils/db_conn.php';
-require_once __DIR__.'/../utils/base.php';
-error_reporting(0); // hide warnings
+require_once __DIR__ . '/../utils/base.php';
+require __DIR__ . '/../vendor/autoload.php';
+use Egulias\EmailValidator\EmailValidator;
+use Egulias\EmailValidator\Validation\DNSCheckValidation;
+use Egulias\EmailValidator\Validation\MultipleValidationWithAnd;
+use Egulias\EmailValidator\Validation\RFCValidation;
+
+$validator = new EmailValidator();
+$multipleValidations = new MultipleValidationWithAnd([
+  new RFCValidation(),
+  new DNSCheckValidation()
+]);
+// var_dump($b);
+error_reporting(1); // hide warnings
 $conn = db_conn(
   Env('servername'),
   Env('db'),
   Env('username'),
   Env('password')
 );
+$type = "";
 $error = "";
 $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
@@ -19,11 +32,21 @@ switch ($method) {
     $university_roll = $_POST['university_roll'];
     $college_name = $_POST['college-name'];
     $department_id = $_POST['department_id'];
+    $email = $_POST['email'];
     $password = $_POST['password'];
     if (empty($name) || empty($username) || empty($password)) {
       $error = "All fields are required!";
       break; // show form again
     }
+    if (!$validator->isValid($email, $multipleValidations)) {
+      $error = "Enter an correct email address.";
+      break; // show form again
+    }
+    if (strlen($password) < 6) {
+      $error = "Minimun length of password is 6.";
+      break; // show form again
+    }
+
     // Connect DB
     $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
 
@@ -57,11 +80,88 @@ switch ($method) {
         $hash,
       ]);
 
+
       if (!$ok) {
         $error = "Failed to create teacher. Try again!";
         break;
       } else {
-        header("Location:" . $base_url ."/views/login.php");
+        session_start();
+        $type = "otp";
+        $otp = random_int(1000, 9999);
+        $_SESSION['otp']=$otp;
+        $_SESSION['email']=$email;
+        $_SESSION['name']=$name;
+        include __DIR__ . "/../mail.php";
+        $body = '
+              <!DOCTYPE html>
+              <html lang="en">
+              <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>OTP Verification</title>
+              <style>
+                body {
+                  margin: 0;
+                  padding: 0;
+                  background-color: #f4f4f7;
+                  font-family: Arial, sans-serif;
+                }
+                .container {
+                  max-width: 500px;
+                  margin: 40px auto;
+                  background: #ffffff;
+                  padding: 30px;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                  text-align: center;
+                }
+                .logo {
+                  font-size: 22px;
+                  font-weight: bold;
+                  margin-bottom: 20px;
+                }
+                .otp {
+                  font-size: 32px;
+                  letter-spacing: 6px;
+                  font-weight: bold;
+                  color: #333;
+                  margin: 20px 0;
+                }
+                .message {
+                  font-size: 14px;
+                  color: #555;
+                  margin-bottom: 20px;
+                }
+                .footer {
+                  font-size: 12px;
+                  color: #999;
+                  margin-top: 30px;
+                }
+              </style>
+              </head>
+              <body>
+
+              <div class="container">
+                <div class="logo">The Digital Scape</div>
+
+                <p class="message">
+                  Use the OTP below to complete your verification. This code is valid for 5 minutes.
+                </p>
+
+                <div class="otp">' . $otp . '</div>
+
+
+                <div class="footer">
+                  © 2026 The Digital Scape. All rights reserved.
+                </div>
+              </div>
+
+              </body>';
+        $altbody = "Your OTP is: $otp. It is valid for 5 minutes. Do not share this code.";
+        $subject = "Your OTP Code - Verification Required";
+        sendMailToNewAdmin($email, $name, $subject, $body, $altbody);
+
+        header("Location:" . $base_url . "/views/otp.php?username=". $username ."&type=".$role);
       }
     } else {
       // Check duplicate username
@@ -83,7 +183,83 @@ switch ($method) {
         $error = "Failed to create student. Try again!";
         break;
       } else {
-        header("Location: ".$base_url."/views/login.php");
+        session_start();
+        $type = "otp";
+        $otp = random_int(1000, 9999);
+        $_SESSION['otp']=$otp;
+        $_SESSION['email']=$email;
+        $_SESSION['name']=$name;
+        include __DIR__ . "/../mail.php";
+        $body = '
+              <!DOCTYPE html>
+              <html lang="en">
+              <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>OTP Verification</title>
+              <style>
+                body {
+                  margin: 0;
+                  padding: 0;
+                  background-color: #f4f4f7;
+                  font-family: Arial, sans-serif;
+                }
+                .container {
+                  max-width: 500px;
+                  margin: 40px auto;
+                  background: #ffffff;
+                  padding: 30px;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                  text-align: center;
+                }
+                .logo {
+                  font-size: 22px;
+                  font-weight: bold;
+                  margin-bottom: 20px;
+                }
+                .otp {
+                  font-size: 32px;
+                  letter-spacing: 6px;
+                  font-weight: bold;
+                  color: #333;
+                  margin: 20px 0;
+                }
+                .message {
+                  font-size: 14px;
+                  color: #555;
+                  margin-bottom: 20px;
+                }
+                .footer {
+                  font-size: 12px;
+                  color: #999;
+                  margin-top: 30px;
+                }
+              </style>
+              </head>
+              <body>
+
+              <div class="container">
+                <div class="logo">The Digital Scape</div>
+
+                <p class="message">
+                  Use the OTP below to complete your verification. This code is valid for 5 minutes.
+                </p>
+
+                <div class="otp">' . $otp . '</div>
+
+
+                <div class="footer">
+                  © 2026 The Digital Scape. All rights reserved.
+                </div>
+              </div>
+
+              </body>';
+        $altbody = "Your OTP is: $otp. It is valid for 5 minutes. Do not share this code.";
+        $subject = "Your OTP Code - Verification Required";
+        sendMailToNewAdmin($email, $name, $subject, $body, $altbody);
+
+        header("Location:" . $base_url . "/views/otp.php?username=". $username ."&type=".$role);
       }
     }
 
@@ -111,6 +287,19 @@ switch ($method) {
   <link rel="stylesheet" href="./css/style.css" />
   <title>Create a new account - The Digital Scape</title>
   <style>
+    .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ddd;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  margin: 0 auto;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
     body {
       min-height: 100vh;
       margin: 0;
@@ -291,114 +480,122 @@ switch ($method) {
 <body>
   <div class="signup-wrapper">
     <div class="signup-shell">
-      <div class="row g-0">
-        <div class="col-md-5">
-          <div class="signup-showcase">
-            <span class="brand-chip">The Digital Scape</span>
-            <h1 class="showcase-title">Create Account</h1>
-            <p class="showcase-text">
-              Join the platform and start sharing your ideas, articles, and campus stories with your community.
-            </p>
+      <?php if (empty($type)) { ?>
+        <div class="row g-0">
+          <div class="col-md-5">
+            <div class="signup-showcase">
+              <span class="brand-chip">The Digital Scape</span>
+              <h1 class="showcase-title">Create Account</h1>
+              <p class="showcase-text">
+                Join the platform and start sharing your ideas, articles, and campus stories with your community.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div class="col-md-7">
-          <div class="signup-panel">
-            <ul class="nav nav-pills mb-3">
-              <li class="nav-item">
-                <a class="nav-link <?php if ($role == 'student') { ?> active disabled <?php } ?>" aria-current="page"
-                  href="signup.php?role=student">Student</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link <?php if ($role == 'teacher') { ?> active disabled <?php } ?>"
-                  href="signup.php?role=teacher">Teacher</a>
-              </li>
-            </ul>
+          <div class="col-md-7">
+            <div class="signup-panel">
+              <ul class="nav nav-pills mb-3">
+                <li class="nav-item">
+                  <a class="nav-link <?php if ($role == 'student') { ?> active disabled <?php } ?>" aria-current="page"
+                    href="signup.php?role=student">Student</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link <?php if ($role == 'teacher') { ?> active disabled <?php } ?>"
+                    href="signup.php?role=teacher">Teacher</a>
+                </li>
+              </ul>
 
-            <h2 class="signup-title">Join as <?php if ($role == 'student') { ?>Student<?php } else if ($role == 'teacher') { ?>Teacher<?php } ?></h2>
-            <p class="signup-subtitle">Fill in your details to create your account.</p>
+              <h2 class="signup-title">Join as
+                <?php if ($role == 'student') { ?>Student<?php } else if ($role == 'teacher') { ?>Teacher<?php } ?>
+              </h2>
+              <p class="signup-subtitle">Fill in your details to create your account.</p>
 
-            <?php if (!empty($error)) { ?>
-              <div class="alert alert-danger alert-dismissible" role="alert">
-                <div><?php echo $error; ?></div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            <?php } ?>
+              <?php if (!empty($error)) { ?>
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                  <div><?php echo $error; ?></div>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              <?php } ?>
 
-            <form method="post" action="signup.php">
-              <input type="text" hidden value="<?php echo $role; ?>" name="role">
+              <form method="post" action="signup.php">
+                <input type="text" hidden value="<?php echo $role; ?>" name="role">
 
-              <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input class="form-control" type="text" placeholder="Enter name" id="name" name="name" required
-                  aria-label="name" />
-              </div>
-
-              <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input class="form-control" type="text" placeholder="Enter username" id="username" required
-                  name="username" aria-label="username" />
-              </div>
-
-              <?php
-              if ($role == 'student') {
-                ?>
                 <div class="mb-3">
-                  <label for="student-id" class="form-label">Student ID</label>
-                  <input class="form-control" type="text" placeholder="Enter student ID" id="student-id" name="student-id"
-                    aria-label="student-id" />
+                  <label for="name" class="form-label">Name</label>
+                  <input class="form-control" type="text" placeholder="Enter name" id="name" name="name" required
+                    aria-label="name" />
                 </div>
 
                 <div class="mb-3">
-                  <label for="university_roll" class="form-label">University Roll</label>
-                  <input class="form-control" type="text" placeholder="Enter university roll" id="university_roll"
-                    name="university_roll" aria-label="university-roll" />
+                  <label for="username" class="form-label">Username</label>
+                  <input class="form-control" type="text" placeholder="Enter username" id="username" required
+                    name="username" aria-label="username" />
                 </div>
+
                 <?php
-              }
-              ?>
-
-              <div class="mb-3">
-                <label for="college" class="form-label">College Name</label>
-                <input class="form-control" type="text" name="college-name" id="college" required
-                  placeholder="Enter college name" aria-label="college-name" />
-              </div>
-
-              <div class="mb-3">
-                <label for="department_id" class="form-label">Department</label>
-                <select class="form-select" aria-label="department" name="department_id" id="department_id" required>
-                  <?php
-                  $stmt = $conn->prepare("SELECT * FROM `departments`;");
-                  $stmt->execute();
-                  $depts = $stmt->fetchAll();
-                  foreach ($depts as $dept) {
-                    ?>
-                    <option value="<?php echo $dept['department_id'] ?>"><?php echo $dept['name'] ?> -
-                      <?php echo $dept['code'] ?>
-                    </option>
-                    <?php
-                  }
+                if ($role == 'student') {
                   ?>
-                </select>
-              </div>
+                  <div class="mb-3">
+                    <label for="student-id" class="form-label">Student ID</label>
+                    <input class="form-control" type="text" placeholder="Enter student ID" id="student-id" name="student-id"
+                      aria-label="student-id" />
+                  </div>
 
-              <div class="mb-4">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" name="password" id="password" placeholder="Enter password"
-                  required />
-              </div>
+                  <div class="mb-3">
+                    <label for="university_roll" class="form-label">University Roll</label>
+                    <input class="form-control" type="text" placeholder="Enter university roll" id="university_roll"
+                      name="university_roll" aria-label="university-roll" />
+                  </div>
+                  <?php
+                }
+                ?>
 
-              <button type="submit" class="btn btn-signup" id="btn-submit">
-                Create Account
-              </button>
-            </form>
+                <div class="mb-3">
+                  <label for="college" class="form-label">College Name</label>
+                  <input class="form-control" type="text" name="college-name" id="college" required
+                    placeholder="Enter college name" aria-label="college-name" />
+                </div>
 
-            <p class="signup-footnote">
-              Already have an account? <a href="./login.php">Login</a>
-            </p>
+                <div class="mb-3">
+                  <label for="department_id" class="form-label">Department</label>
+                  <select class="form-select" aria-label="department" name="department_id" id="department_id" required>
+                    <?php
+                    $stmt = $conn->prepare("SELECT * FROM `departments`;");
+                    $stmt->execute();
+                    $depts = $stmt->fetchAll();
+                    foreach ($depts as $dept) {
+                      ?>
+                      <option value="<?php echo $dept['department_id'] ?>"><?php echo $dept['name'] ?> -
+                        <?php echo $dept['code'] ?>
+                      </option>
+                      <?php
+                    }
+                    ?>
+                  </select>
+                </div>
+
+                <div class="mb-4">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" required />
+                </div>
+                <div class="mb-4">
+                  <label for="password" class="form-label">Password</label>
+                  <input type="password" class="form-control" name="password" id="password" placeholder="Enter password"
+                    required />
+                </div>
+
+                <button type="submit" class="btn btn-signup" id="btn-submit">
+                  Create Account
+                </button>
+              </form>
+
+              <p class="signup-footnote">
+                Already have an account? <a href="./login.php">Login</a>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      <?php } ?>
     </div>
   </div>
 

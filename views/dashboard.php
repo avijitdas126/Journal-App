@@ -81,7 +81,10 @@ switch ($method) {
                     include __DIR__ . '/components/notice.php';
                 }else if($page=='leaderboard'){
                     include __DIR__ . '/components/leaderboard.php';
-                }else {
+                }else if($page=='update_profile'){
+                    include __DIR__ . '/components/update_profile.php';
+                }
+                else {
                     include __DIR__ . '/404.php';
                 }
                 ?>

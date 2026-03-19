@@ -33,7 +33,7 @@ if ($method === 'POST') {
         $filename = bin2hex(random_bytes(8)) . '.' . $ext;
         move_uploaded_file($_FILES['notice_file']['tmp_name'], $uploadDir . $filename);
 
-        $url = "/uploads/notices/" . $filename;
+        $url = $base_url."/uploads/notices/" . $filename;
 
         $stmt = $conn->prepare(
             "INSERT INTO notices (title, url, author_id, at_publish) VALUES (?, ?, ?, NOW())"

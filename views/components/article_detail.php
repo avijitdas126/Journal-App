@@ -12,7 +12,7 @@ $sql="SELECT
     COALESCE(s.avatar_url, ad.avatar_url) AS avatar_url,
 
     a.slug,
-    a.submitted_at,
+    a.updated_at,
     c.category AS category_name,
     c.slug,
 
@@ -183,9 +183,6 @@ if(!$article){
 <div class="container py-4" style="max-width: 900px;">
     <div class="article-header">
         <div class="author-section">
-            <?php if($article['avatar_url']){ ?>
-                <img src="<?php echo htmlspecialchars($article['avatar_url']); ?>" alt="Author Avatar" class="author-avatar">
-            <?php } ?>
             <div>
                 <h1><?php echo htmlspecialchars($article['title']); ?></h1>
                 <div class="article-meta">
@@ -193,7 +190,7 @@ if(!$article){
                         ✍️ <a href="views/profile.php?username=<?php echo urlencode($article['username']); ?>"><?php echo htmlspecialchars($article['author_name']); ?></a>
                     </div>
                     <div class="meta-item">
-                        📅 <?php echo date('d M Y', strtotime($article['submitted_at'])); ?>
+                        📅 <?php echo date('d M Y', strtotime($article['updated_at'])); ?>
                     </div>
                     <?php if($article['category_name']){ ?>
                     <div class="meta-item">

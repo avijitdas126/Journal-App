@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 $id = $_GET['id'];
 $page = $_GET['page'];
 require_once __DIR__ . '/../../utils/base.php';
@@ -321,6 +323,8 @@ $mode = $_GET['mode'] ?? 'draft';
     let payload = {
       article_id: <?php echo $id; ?>,
       isfull: false,
+      author_id: <?php echo $_SESSION['user_id']; ?>, // Add this
+      author_type: "<?php echo $_SESSION['role']; ?>", // Add this
       category_id: window.localStorage.getItem('category_id') || 0,
       description: window.localStorage.getItem("article_description") || "No description",
       slug: window.localStorage.getItem("article_title") ? "<?php echo $_SESSION['username']; ?>_" + window.localStorage.getItem("article_title").toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') + '_' + <?php echo $id; ?> : "<?php echo $_SESSION['username']; ?>_" + "untitled-article_" + <?php echo $id; ?>,
@@ -542,17 +546,21 @@ $mode = $_GET['mode'] ?? 'draft';
         if (!res.ok) throw new Error("API error");
 
         const article = data.article;
+        console.log(article)
 
         // Save in localStorage
         localStorage.setItem('article', article.content_json);
         localStorage.setItem('article_id', article.article_id);
         localStorage.setItem('article_title', article.title);
         localStorage.setItem('category_id', article.category);
+        localStorage.setItem('article_description', article.description);
         // Set title input
         titleinput.value = article.title;
 
         // Parse JSON only once
         contentdata = article.content_json;
+        document.getElementById("desinput").value = article.description;
+        document.getElementById("category_id").value = article.category;
 
       } catch (e) {
         console.error("Error fetching article data:", e);
@@ -570,7 +578,6 @@ $mode = $_GET['mode'] ?? 'draft';
           if (local && local !== "") {
             contentdata = local; // Important
           }
-
           document.getElementById("titleinput").value = localStorage.getItem("article_title") || "";
           document.getElementById("category_id").value = localStorage.getItem("category_id") || 1;
         } else {
@@ -581,8 +588,11 @@ $mode = $_GET['mode'] ?? 'draft';
           localStorage.setItem('article_id', article.article_id);
           localStorage.setItem('article_title', article.title);
           localStorage.setItem('category_id', article.category);
+          localStorage.setItem('article_description', article.description);
           // Set title input
           titleinput.value = article.title;
+          // desinput
+          document.getElementById("desinput").value = article.description;
           document.getElementById("category_id").value = article.category;
           // Parse JSON only once
           contentdata = article.content_json;

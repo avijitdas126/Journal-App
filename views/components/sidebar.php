@@ -53,13 +53,19 @@
           Leaderboard
         </a>
       </li>
+      <li>
+        <a href="?page=update_profile" class="nav-link <?php if($page=='update_profile') {echo'active';}else{ echo "text-white";} ?>">
+          Update Profile
+        </a>
+      </li>
+      
     </ul>
     <hr>
 
 <div class="dropdown mt-auto">
     <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
        id="dropdownUser1" data-bs-toggle="dropdown">
-        <img src="<?php echo'https://dummyimage.com/400x400/000/fff&text=' . urlencode($_SESSION['name'][0]); ?>" alt="" width="32" height="32"
+        <img src="<?php echo isset($_SESSION['avatar_url']) ? $_SESSION['avatar_url'] : 'https://dummyimage.com/400x400/000/fff&text=' . urlencode($_SESSION['name'][0]); ?>" alt="" width="32" height="32"
              class="rounded-circle me-2">
         <strong><?php echo htmlspecialchars($_SESSION['name']); ?></strong>
     </a>

@@ -8,8 +8,8 @@ switch ($method) {
   case 'POST':
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
-    $sql1 = "SELECT * FROM `students` WHERE `username` LIKE '%$username%';";
-    $sql2 = "SELECT * FROM `admins` WHERE `username` LIKE '%$username%';";
+    $sql1 = "SELECT * FROM `students` WHERE `username` = '$username';";
+    $sql2 = "SELECT * FROM `admins` WHERE `username` = '$username';";
     $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
     $check1 = $conn->prepare($sql1);
     $check2 = $conn->prepare($sql2);
@@ -28,6 +28,8 @@ switch ($method) {
         $_SESSION['username'] = $user['username'];
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['department_id'] = $user['department_id'];
+        $_SESSION['avatar_url'] = $user['avatar_url'];
+        $_SESSION['email'] = $user['email'];
         $_SESSION['role'] = 'student';
       }
       header("Location: dashboard.php?page=overview");
@@ -43,6 +45,8 @@ switch ($method) {
         $_SESSION['username'] = $user['username'];
         $_SESSION['user_id'] = $user['admin_id'];
         $_SESSION['department_id'] = $user['department_id'];
+        $_SESSION['avatar_url'] = $user['avatar_url'];
+        $_SESSION['email'] = $user['email'];
         $_SESSION['role'] = $user['role'];
       }
       header("Location: dashboard.php?page=overview");

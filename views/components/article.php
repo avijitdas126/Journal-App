@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__ . '/../../utils/db_conn.php';
+session_start();
 $id = $_SESSION['user_id'];
-$sql = "SELECT `article`.*, c.category AS category_name FROM `article` Join category c ON `article`.category = c.id WHERE `status` = 'draft' AND `author_id` = $id ORDER BY `updated_at` DESC;";
+$role=$_SESSION['role'];
+$sql = "SELECT `article`.*, c.category AS category_name FROM `article` Join category c ON `article`.category = c.id WHERE `status` = 'draft' AND `author_id` = $id AND author_type='$role' ORDER BY `updated_at` DESC;";
 $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
 $articles = $conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-$sql = "SELECT `article`.*, c.category AS category_name FROM `article` Join category c ON `article`.category = c.id WHERE `status` = 'review' AND `author_id` = $id ORDER BY `updated_at` DESC;";
+$sql = "SELECT `article`.*, c.category AS category_name FROM `article` Join category c ON `article`.category = c.id WHERE `status` = 'review' AND `author_id` = $id AND author_type='$role' ORDER BY `updated_at` DESC;";
 $in_review_articles = $conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
 ?>

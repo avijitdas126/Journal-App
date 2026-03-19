@@ -1,4 +1,4 @@
-<?php 
+<?php
 $mode = $_GET['mode'] ?? 'draft';
 ?>
 <style>
@@ -148,7 +148,7 @@ $mode = $_GET['mode'] ?? 'draft';
       </div>
       <div class="offcanvas-body">
         <div class="offcanvas-user">
-          <img src="<?php echo 'https://dummyimage.com/400x400/000/fff&text=' . urlencode($_SESSION['name'][0]); ?>"
+          <img src="<?php echo isset($_SESSION['avatar_url']) ? $_SESSION['avatar_url'] : 'https://dummyimage.com/400x400/000/fff&text=' . urlencode($_SESSION['name'][0]); ?>"
             alt="avatar" />
           <div class="offcanvas-user-info">
             <span class="name"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
@@ -170,10 +170,9 @@ $mode = $_GET['mode'] ?? 'draft';
             </a>
           </li>
           <li>
-            <a href="?page=article"
-              class="<?php if ($page == 'article' || $page == 'edit_article' || $page == 'add_article') {
-                echo 'active';
-              } ?>">
+            <a href="?page=article" class="<?php if ($page == 'article' || $page == 'edit_article' || $page == 'add_article') {
+              echo 'active';
+            } ?>">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                 class="bi bi-pencil-square" viewBox="0 0 16 16">
                 <path
@@ -186,10 +185,9 @@ $mode = $_GET['mode'] ?? 'draft';
           </li>
           <?php if ($_SESSION['department_id'] == 20 && ($_SESSION['role'] == 'teacher' || $_SESSION['role'] == 'admin')) { ?>
             <li>
-              <a href="?page=reviews"
-                class="<?php if ($page == 'reviews' || $page == 'in_review' || $page == 'add_review') {
-                  echo 'active';
-                } ?>">
+              <a href="?page=reviews" class="<?php if ($page == 'reviews' || $page == 'in_review' || $page == 'add_review') {
+                echo 'active';
+              } ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                   class="bi bi-journal-text" viewBox="0 0 16 16">
                   <path d="M5 8h6v1H5V8zm0 2h6v1H5v-1z" />
@@ -229,10 +227,10 @@ $mode = $_GET['mode'] ?? 'draft';
               <a href="?page=add_developer" class="<?php if ($page == 'add_developer') {
                 echo 'active';
               } ?>">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                  class="bi bi-code-slash" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-code"
+                  viewBox="0 0 16 16">
                   <path
-                    d="M10.478 4.646a.5.5 0 0 1 .646.478v5.752a.5.5 0 0 1-.646.478l-4.478-2.876a.5.5 0 0 1 0-.956l4.478-2.876z" />
+                    d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8z" />
                 </svg>
                 Add Developer
               </a>
@@ -241,10 +239,12 @@ $mode = $_GET['mode'] ?? 'draft';
               <a href="?page=notice" class="<?php if ($page == 'notice') {
                 echo 'active';
               } ?>">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                  class="bi bi-code-slash" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-journal"
+                  viewBox="0 0 16 16">
                   <path
-                    d="M10.478 4.646a.5.5 0 0 1 .646.478v5.752a.5.5 0 0 1-.646.478l-4.478-2.876a.5.5 0 0 1 0-.956l4.478-2.876z" />
+                    d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2" />
+                  <path
+                    d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z" />
                 </svg>
                 Notice
               </a>
@@ -254,18 +254,31 @@ $mode = $_GET['mode'] ?? 'draft';
             <a href="?page=leaderboard" class="<?php if ($page == 'leaderboard') {
               echo 'active';
             } ?>">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                class="bi bi-code-slash" viewBox="0 0 16 16">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-bar-chart-fill" viewBox="0 0 16 16">
                 <path
-                  d="M10.478 4.646a.5.5 0 0 1 .646.478v5.752a.5.5 0 0 1-.646.478l-4.478-2.876a.5.5 0 0 1 0-.956l4.478-2.876z" />
+                  d="M1 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm5-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1z" />
               </svg>
+
               Leaderboard
+            </a>
+          </li>
+          <li>
+            <a href="?page=update_profile" class="<?php if ($page == 'update_profile') {
+              echo 'active';
+            } ?>">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person"
+                viewBox="0 0 16 16">
+                <path
+                  d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+              </svg>
+              Update Profile
             </a>
           </li>
         </ul>
       </div>
     </div>
-    <?php if (($page == 'add_article' || $page == 'edit_article')&&$mode=='draft') {
+    <?php if (($page == 'add_article' || $page == 'edit_article') && $mode == 'draft') {
       ?>
       <!-- Button trigger modal -->
       <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
@@ -305,7 +318,7 @@ $mode = $_GET['mode'] ?? 'draft';
 
   <div class="profile">
 
-    <img src="<?php echo 'https://dummyimage.com/400x400/000/fff&text=' . urlencode($_SESSION['name'][0]); ?>"
+    <img src="<?php  echo isset($_SESSION['avatar_url']) ? $_SESSION['avatar_url'] : 'https://dummyimage.com/400x400/000/fff&text=' . urlencode($_SESSION['name'][0]); ?>"
       alt="avatar" width="32" height="32" class="rounded-circle me-2" />
     <div id="menu">
       <ul>

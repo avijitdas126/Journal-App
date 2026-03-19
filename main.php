@@ -66,7 +66,7 @@ ORDER BY score DESC LiMIT 3;
     s.username,
     s.avatar_url,
     a.slug,
-    a.submitted_at,
+    a.updated_at,
     c.category AS category_name,
 
     -- author name (student or admin)
@@ -86,7 +86,7 @@ LEFT JOIN admins ad
    AND a.author_type IN ('admin', 'teacher')
 
 WHERE a.status = 'published'
-ORDER BY a.submitted_at DESC LIMIT 3;
+ORDER BY a.created_at DESC LIMIT 3;
 ";
 
 
@@ -736,15 +736,16 @@ ORDER BY a.submitted_at DESC LIMIT 3;
                 <span class="home-stat-chip">New Notices <span class="value"><?php echo count($notices); ?></span></span>
             </div>
         </section>
-
+        
         <section class="container home-section p-2">
             <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
                 <h2 class="section-heading">Latest Approved Articles</h2>
                 <a href="?page=articles" class="btn btn-link"
                     style="color:green;text-decoration: underline; font-weight: 500;">View All Articles</a>
             </div>
-
+<?php if(count($articles)){ ?>
             <div id="articles-page-1" class="row g-4 article-page">
+                
                 <?php foreach ($articles as $article) { ?>
                     <div class="col-lg-4 col-md-6">
                         <div class="card article-card h-100">
@@ -753,7 +754,7 @@ ORDER BY a.submitted_at DESC LIMIT 3;
                                     <span
                                         class="category-badge"><?php echo htmlspecialchars($article['category_name'] ?? 'General'); ?></span>
                                     <small
-                                        class="text-muted"><?php echo date('d M Y', strtotime($article['submitted_at'])); ?></small>
+                                        class="text-muted"><?php echo date('d M Y', strtotime($article['updated_at'])); ?></small>
                                 </div>
                                 <h5 class="card-title"><?php echo htmlspecialchars($article['title']); ?></h5>
                                 <p class="text-muted small mb-2">By <?php echo htmlspecialchars($article['author_name']); ?></p>
@@ -767,11 +768,16 @@ ORDER BY a.submitted_at DESC LIMIT 3;
                 <?php } ?>
 
             </div>
+            <?php }else{
+    echo "No article is approved yet.";
+} ?>
         </section>
+
 
         <section class="container home-section pt-2 p-2">
             <h2 class="section-heading mb-4">🏆 Top Authors Leaderboard</h2>
             <ul class="list-unstyled leaderboard">
+                <?php if(count($leaders)){ ?>
                 <?php
                 $rank = 1;
                 foreach ($leaders as $leader) { ?>
@@ -783,6 +789,7 @@ ORDER BY a.submitted_at DESC LIMIT 3;
                         <span><?php echo htmlspecialchars($leader['final_marks']); ?> Points</span>
                     </li>
                 <?php } ?>
+                <?php }else{ echo "No Author is participated in contest.";} ?>
             </ul>
         </section>
 

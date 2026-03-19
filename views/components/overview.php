@@ -1,12 +1,14 @@
 <?php
 require_once __DIR__ . '/../../utils/db_conn.php';
 $id = $_SESSION['user_id'];
+session_start();
+$role=$_SESSION['role'];
 $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
-$articles = $conn->query("SELECT * FROM `article`  WHERE `status` = 'draft' AND `author_id` = $id ORDER BY `updated_at` DESC;")->fetchAll(PDO::FETCH_ASSOC);
-$in_review_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'review' AND `author_id` = $id ORDER BY `updated_at` DESC;")->fetchAll(PDO::FETCH_ASSOC);
-$published_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'published' AND `author_id` = $id;")->fetchAll(PDO::FETCH_ASSOC);
-$rejected_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'rejected' AND `author_id` = $id;")->fetchAll(PDO::FETCH_ASSOC);
-$submitted_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'submitted' AND `author_id` = $id;")->fetchAll(PDO::FETCH_ASSOC);
+$articles = $conn->query("SELECT * FROM `article`  WHERE `status` = 'draft' AND `author_id` = $id AND `author_type`= '$role' ORDER BY `updated_at` DESC;")->fetchAll(PDO::FETCH_ASSOC);
+$in_review_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'review' AND `author_id` = $id AND `author_type`= '$role' ORDER BY `updated_at` DESC;")->fetchAll(PDO::FETCH_ASSOC);
+$published_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'published' AND `author_id` = $id AND `author_type`= '$role';")->fetchAll(PDO::FETCH_ASSOC);
+$rejected_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'rejected' AND `author_id` = $id AND `author_type`= '$role';")->fetchAll(PDO::FETCH_ASSOC);
+$submitted_articles = $conn->query("SELECT * FROM `article` WHERE `status` = 'submitted' AND `author_id` = $id AND `author_type`= '$role';")->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 <link rel="stylesheet" type="text/css" href="<?php baseurl("css/jquery.dataTables.min.css") ?>">

@@ -105,7 +105,7 @@ switch ($method) {
             } else {
                 $sql = "
                  INSERT INTO `article` 
-                 ( `article_id`,`author_id`, `author_type`, `title`,'description', `slug`, `status`, `category`, `content_json`, `content_html`, `submitted_at`, `published_at`, `created_at`, `updated_at`, `deleted_at`)
+                 ( `article_id`,`author_id`, `author_type`, `title`,`description`, `slug`, `status`, `category`, `content_json`, `content_html`, `submitted_at`, `published_at`, `created_at`, `updated_at`, `deleted_at`)
                     VALUES (
                         :article_id,
                         :id, 
