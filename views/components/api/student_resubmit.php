@@ -1,4 +1,5 @@
 <?php
+ini_set('display_errors', 0);
 require_once __DIR__ . '/../../../utils/base.php';
 require_once __DIR__ . '/../../../utils/db_conn.php';
 session_start();

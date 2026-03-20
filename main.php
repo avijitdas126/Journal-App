@@ -16,46 +16,33 @@ switch ($method) {
     u.username,
     u.user_type,
     COUNT(DISTINCT a.article_id) AS published_articles,
-    COALESCE(SUM(lr.marks),0) AS final_marks,
-    (COUNT(DISTINCT a.article_id) * 10 + COALESCE(SUM(lr.marks),0)) AS score
+    -- This calculates the average marks across all published articles for this user
+    ROUND(COALESCE(SUM(avg_article_marks) / COUNT(DISTINCT a.article_id), 0), 2) AS avg_marks_per_article,
+    -- Score: (Count * 10) + (The sum of average marks from each article)
+    ROUND((COUNT(DISTINCT a.article_id) * 10) + COALESCE(SUM(avg_article_marks), 0), 2) AS score
 FROM (
-    SELECT 
-        admin_id AS user_id,
-        name,
-        username,
-        role AS user_type
-    FROM admins
+    SELECT admin_id AS user_id, name, username, role AS user_type FROM admins
     UNION ALL
-    SELECT 
-        user_id,
-        name,
-        username,
-        'student' AS user_type
-    FROM students
+    SELECT user_id, name, username, 'student' AS user_type FROM students
 ) u
-LEFT JOIN article a
-    ON a.author_id = u.user_id
-    AND a.author_type = u.user_type
+INNER JOIN article a 
+    ON a.author_id = u.user_id 
+    AND a.author_type = u.user_type 
     AND a.status = 'published'
 LEFT JOIN (
-    SELECT r1.article_id, r1.marks
-    FROM reviews r1
-    JOIN (
-        SELECT article_id, MAX(created_at) AS last_review_time
-        FROM reviews
-        GROUP BY article_id
-    ) r2
-        ON r1.article_id = r2.article_id
-        AND r1.created_at = r2.last_review_time
-) lr
+    -- Get the average marks for EVERY article first
+    SELECT article_id, AVG(marks) AS avg_article_marks
+    FROM reviews
+    GROUP BY article_id
+) lr 
     ON lr.article_id = a.article_id
 GROUP BY 
-    u.user_id,
-    u.user_type,
-    u.name,
+    u.user_id, 
+    u.user_type, 
+    u.name, 
     u.username
-HAVING published_articles > 0
-ORDER BY score DESC LiMIT 3;
+ORDER BY score DESC 
+LIMIT 3;
 ");
         $stmt->execute();
         $leaders = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -86,7 +73,7 @@ LEFT JOIN admins ad
    AND a.author_type IN ('admin', 'teacher')
 
 WHERE a.status = 'published'
-ORDER BY a.created_at DESC LIMIT 3;
+ORDER BY a.published_at DESC LIMIT 3;
 ";
 
 
@@ -124,13 +111,38 @@ ORDER BY a.created_at DESC LIMIT 3;
         echo "<title> The Digital Scape - Connecting Readers & Student Journalists </title>";
     }
     ?>
-     <link rel="shortcut icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
-        <link rel="icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
+    <link rel="shortcut icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
+    <link rel="icon" href="<?php baseurl("assets/favicon.ico") ?>" type="image/x-icon">
     <link href="<?php baseurl('css/bootstrap.min.css') ?>" rel="stylesheet">
     <link
         href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
     <style>
+.marquee {
+  width: 100%;
+  height: 50px; /* Explicit height */
+  line-height: 50px;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+  
+  /* Add these lines to center the content vertically */
+  display: flex;
+  align-items: center; 
+}
+
+.marquee p {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 15s linear infinite;
+  margin: 0; /* Ensures no extra spacing pushes it off-center */
+}
+
+@keyframes marquee {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(-100%, 0); }
+}
         body {
             font-family: 'Inter', sans-serif;
             padding-top: 56px;
@@ -649,24 +661,18 @@ ORDER BY a.created_at DESC LIMIT 3;
     <?php if ($page == 'home') { ?>
 
         <?php if (count($notices) > 0) { ?>
-            <div class="notice-marquee">
-                <span class="notice-label">📢 Latest Notice</span>
-                <marquee behavior="scroll" direction="left" scrollamount="8" onmouseover="this.stop();"
-                    onmouseout="this.start();">
-                    <?php foreach ($notices as $i => $notice) { ?>
-                        <a href="<?php echo htmlspecialchars($notice['url']); ?>" target="_blank" rel="noopener noreferrer"
-                            style="color:white; text-decoration:none;"><strong>📢
-                                <?php echo htmlspecialchars($notice['title']); ?></strong> 
-                                <?php if($i != count($notices)-1){ ?>
-                                    &bull;
-                            </a>
-                            <?php } ?>
-                                
-                    <?php } ?>
-
-                </marquee>
-            </div>
-        <?php } ?>
+            <div class="notice-marquee"> <span class="notice-label">📢 Latest Notice</span>
+                <div class="marquee">
+                    <p>
+                        <?php foreach ($notices as $i => $notice) { ?> <a href="<?php echo htmlspecialchars($notice['url']); ?>"
+                                target="_blank" rel="noopener noreferrer" style="color:white; text-decoration:none;"><strong>📢
+                                    <?php echo htmlspecialchars($notice['title']); ?></strong>
+                                <?php if ($i != count($notices) - 1) { ?>
+                                    &bull; </a> <?php } ?>
+                        <?php } ?>
+                    </p>
+                </div>
+            </div> <?php } ?>
         <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active" data-bs-interval="5000">
@@ -736,60 +742,62 @@ ORDER BY a.created_at DESC LIMIT 3;
                 <span class="home-stat-chip">New Notices <span class="value"><?php echo count($notices); ?></span></span>
             </div>
         </section>
-        
+
         <section class="container home-section p-2">
             <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
                 <h2 class="section-heading">Latest Approved Articles</h2>
                 <a href="?page=articles" class="btn btn-link"
                     style="color:green;text-decoration: underline; font-weight: 500;">View All Articles</a>
             </div>
-<?php if(count($articles)){ ?>
-            <div id="articles-page-1" class="row g-4 article-page">
-                
-                <?php foreach ($articles as $article) { ?>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="card article-card h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <span
-                                        class="category-badge"><?php echo htmlspecialchars($article['category_name'] ?? 'General'); ?></span>
-                                    <small
-                                        class="text-muted"><?php echo date('d M Y', strtotime($article['updated_at'])); ?></small>
+            <?php if (count($articles)) { ?>
+                <div id="articles-page-1" class="row g-4 article-page">
+
+                    <?php foreach ($articles as $article) { ?>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card article-card h-100">
+                                <div class="card-body d-flex flex-column">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span
+                                            class="category-badge"><?php echo htmlspecialchars($article['category_name'] ?? 'General'); ?></span>
+                                        <small
+                                            class="text-muted"><?php echo date('d M Y', strtotime($article['updated_at'])); ?></small>
+                                    </div>
+                                    <h5 class="card-title"><?php echo htmlspecialchars($article['title']); ?></h5>
+                                    <p class="text-muted small mb-2">By <?php echo htmlspecialchars($article['author_name']); ?></p>
+                                    <p class="card-text mt-2 flex-grow-1"><?php echo htmlspecialchars($article['description']); ?>
+                                    </p>
+                                    <a href="?page=article&slug=<?php echo $article['slug']; ?>"
+                                        class="btn btn-outline-primary mt-2">Read More</a>
                                 </div>
-                                <h5 class="card-title"><?php echo htmlspecialchars($article['title']); ?></h5>
-                                <p class="text-muted small mb-2">By <?php echo htmlspecialchars($article['author_name']); ?></p>
-                                <p class="card-text mt-2 flex-grow-1"><?php echo htmlspecialchars($article['description']); ?>
-                                </p>
-                                <a href="?page=article&slug=<?php echo $article['slug']; ?>"
-                                    class="btn btn-outline-primary mt-2">Read More</a>
                             </div>
                         </div>
-                    </div>
-                <?php } ?>
+                    <?php } ?>
 
-            </div>
-            <?php }else{
-    echo "No article is approved yet.";
-} ?>
+                </div>
+            <?php } else {
+                echo "No article is approved yet.";
+            } ?>
         </section>
 
 
         <section class="container home-section pt-2 p-2">
             <h2 class="section-heading mb-4">🏆 Top Authors Leaderboard</h2>
             <ul class="list-unstyled leaderboard">
-                <?php if(count($leaders)){ ?>
-                <?php
-                $rank = 1;
-                foreach ($leaders as $leader) { ?>
-                    <li class="<?php echo $rank <= 3 ? 'top-rank' : ''; ?>">
-                        <span class="d-flex align-items-center">
-                            <span class="rank-badge"><?php echo $rank++; ?></span>
-                            <?php echo htmlspecialchars($leader['name']); ?>
-                        </span>
-                        <span><?php echo htmlspecialchars($leader['final_marks']); ?> Points</span>
-                    </li>
-                <?php } ?>
-                <?php }else{ echo "No Author is participated in contest.";} ?>
+                <?php if (count($leaders)) { ?>
+                    <?php
+                    $rank = 1;
+                    foreach ($leaders as $leader) { ?>
+                        <li class="<?php echo $rank <= 3 ? 'top-rank' : ''; ?>">
+                            <span class="d-flex align-items-center">
+                                <span class="rank-badge"><?php echo $rank++; ?></span>
+                                <?php echo htmlspecialchars($leader['name']); ?>
+                            </span>
+                            <span><?php echo htmlspecialchars($leader['score']); ?> Points</span>
+                        </li>
+                    <?php } ?>
+                <?php } else {
+                    echo "No Author is participated in contest.";
+                } ?>
             </ul>
         </section>
 
@@ -809,8 +817,7 @@ ORDER BY a.created_at DESC LIMIT 3;
         include_once './views/components/contact.php';
     } else if ($page == 'category') {
         include_once './views/components/category.php';
-    }
-     else {
+    } else {
         include_once './views/404.php';
     } ?>
     <footer>

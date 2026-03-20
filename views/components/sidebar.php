@@ -1,4 +1,6 @@
-
+<?php 
+ini_set('display_errors', 0);
+?>
 
 <div class="d-flex flex-column flex-shrink-0 p-3 d-none d-md-block text-white bg-dark" id="sidebar" style="width: 280px; height: 100vh; position: fixed; top: 0; left: 0; overflow-y: auto; overflow-x: hidden;">
     <a href="" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
@@ -12,23 +14,35 @@
           Overview
         </a>
       </li>
+      <?php if ($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'student' || $_SESSION['role'] == 'teacher') {?>
       <li>
-        <a href="?page=article" class="nav-link  <?php if($page=='article' || $page=='edit_article'||$page=='add_article') {echo'active';}else{ echo "text-white";} ?>">
+        <a href="?page=article" class="nav-link  <?php if($page=='article' || $page=='edit_article'||$page=='add_article' || $page=='edit_review_article') {echo'active';}else{ echo "text-white";} ?>">
           Post an Article
         </a>
       </li>
-      <?php if($_SESSION['department_id']==20&&($_SESSION['role']=='teacher' || $_SESSION['role']=='admin')){ ?>
+      <?php }?>
+      <?php if( $_SESSION['role']=='admin'){ ?>
       <li>
         <a href="?page=reviews" class="nav-link <?php if($page=='reviews' || $page=='in_review'||$page=='add_review') {echo'active';}else{ echo "text-white";} ?>">
           Reviews
         </a>
       </li>
       <?php } ?>
-      <?php if($_SESSION['department_id']==20&& $_SESSION['role']=='admin'){ ?>
+      <?php if( $_SESSION['role']=='admin'){ ?>
       <li>
         <a href="?page=add_admin" class="nav-link <?php if($page=='add_admin') {echo'active';}else{ echo "text-white";} ?>">
           
           Add Admin
+        </a>
+      </li>
+      <li>
+        <a href="?page=add_student" class="nav-link <?php if($page=='add_student') {echo'active';}else{ echo "text-white";} ?>">
+          Add Student
+        </a>
+      </li>
+      <li>
+        <a href="?page=add_teacher" class="nav-link <?php if($page=='add_teacher') {echo'active';}else{ echo "text-white";} ?>">
+          Add Teacher
         </a>
       </li>
       <li>

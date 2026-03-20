@@ -1,5 +1,5 @@
 <?php 
-
+ini_set('display_errors', 0);
 header("Content-Type: application/json");
 $method = $_SERVER['REQUEST_METHOD'];
 error_reporting(0);

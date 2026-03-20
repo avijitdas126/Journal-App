@@ -13,6 +13,7 @@ switch ($method) {
         $author_id = $_POST['id'];
         $article_id = $_POST['article_id'];
         $status = $_POST['status'];
+        $role = $_POST['role'];
         try {
             // Connect to DB
             $conn = db_conn(
@@ -29,12 +30,13 @@ switch ($method) {
                 $sql = "UPDATE `article` 
                 SET `status` = :status,
                 `submitted_at` = CURRENT_TIMESTAMP
-                 WHERE `article`.`article_id` = :article_id AND `article`.`author_id` = :author_id;";
+                 WHERE `article`.`article_id` = :article_id AND `article`.`author_id` = :author_id AND author_type=:author_type;";
                 $stmt = $conn->prepare($sql);
                 $success = $stmt->execute([
                     ':status' => $status,
                     ':article_id' => $article_id,
-                    ':author_id' => $author_id
+                    ':author_id' => $author_id,
+                    ':author_type'=>$role
                 ]);
                 header("Location: ".$base_url."/views/dashboard.php?page=article");
             }

@@ -40,9 +40,9 @@ if ($method === 'POST') {
             <h1>Welcome to Journal</h1>
             <p>Your account has been created successfully. Here are your login details:</p>
             <ul>
-            <li><strong>Username:</strong> ' . $admin_username . '</li>
-            <li><strong>Password:</strong> ' . $_POST['admin_password'] . '</li>';
-            $altbody = 'Welcome to Journal. Your account has been created successfully. Here are your login details: Username: ' . $admin_username . ' Password: ' . $_POST['admin_password'];
+            <li><strong>Username:</strong> ' . $developer_username . '</li>
+            <li><strong>Password:</strong> ' . $_POST['developer_password'] . '</li>';
+            $altbody = 'Welcome to Journal. Your account has been created successfully. Here are your login details: Username: ' . $developer_username . ' Password: ' . $_POST['developer_password'];
             $subject = 'Welcome to Journal, ' . $admin_name;
             sendMailToNewAdmin($email, $admin_name, $subject, $body, $altbody);
             header("Location: /Journal/views/dashboard.php?page=add_developer&status=success");

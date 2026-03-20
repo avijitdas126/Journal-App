@@ -1,5 +1,5 @@
 <?php
-
+ini_set('display_errors', 0);
 require_once __DIR__ . '/../../../utils/db_conn.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
@@ -25,7 +25,7 @@ if ($method === 'GET') {
                 
             }
         }else if($type=='article'){
-         $sql="UPDATE article SET status='deleted' WHERE `article_id` = $id";
+         $sql="UPDATE article SET status='deleted', `deleted_at`=CURRENT_TIMESTAMP WHERE `article_id` = $id";
             $stmt = $conn->prepare($sql);
             $success = $stmt->execute();
             if($success){

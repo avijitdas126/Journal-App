@@ -1,5 +1,5 @@
 <?php
-
+ini_set('display_errors', 0);
 $uploadDir = __DIR__ . "/../../../uploads/"; // absolute path
 $uploadUrl = "/Journal/uploads/"; // adjust to your public URL
 require_once __DIR__ . '/../../../utils/db_conn.php';

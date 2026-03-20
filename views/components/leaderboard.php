@@ -10,46 +10,33 @@ if ($method === 'GET') {
     u.username,
     u.user_type,
     COUNT(DISTINCT a.article_id) AS published_articles,
-    COALESCE(SUM(lr.marks),0) AS final_marks,
-    (COUNT(DISTINCT a.article_id) * 10 + COALESCE(SUM(lr.marks),0)) AS score
+    -- This calculates the average marks across all published articles for this user
+    ROUND(COALESCE(SUM(avg_article_marks) / COUNT(DISTINCT a.article_id), 0), 2) AS avg_marks_per_article,
+    -- Score: (Count * 10) + (The sum of average marks from each article)
+    ROUND((COUNT(DISTINCT a.article_id) * 10) + COALESCE(SUM(avg_article_marks), 0), 2) AS score
 FROM (
-    SELECT 
-        admin_id AS user_id,
-        name,
-        username,
-        role AS user_type
-    FROM admins
+    SELECT admin_id AS user_id, name, username, role AS user_type FROM admins
     UNION ALL
-    SELECT 
-        user_id,
-        name,
-        username,
-        'student' AS user_type
-    FROM students
+    SELECT user_id, name, username, 'student' AS user_type FROM students
 ) u
-LEFT JOIN article a
-    ON a.author_id = u.user_id
-    AND a.author_type = u.user_type
+INNER JOIN article a 
+    ON a.author_id = u.user_id 
+    AND a.author_type = u.user_type 
     AND a.status = 'published'
 LEFT JOIN (
-    SELECT r1.article_id, r1.marks
-    FROM reviews r1
-    JOIN (
-        SELECT article_id, MAX(created_at) AS last_review_time
-        FROM reviews
-        GROUP BY article_id
-    ) r2
-        ON r1.article_id = r2.article_id
-        AND r1.created_at = r2.last_review_time
-) lr
+    -- Get the average marks for EVERY article first
+    SELECT article_id, AVG(marks) AS avg_article_marks
+    FROM reviews
+    GROUP BY article_id
+) lr 
     ON lr.article_id = a.article_id
 GROUP BY 
-    u.user_id,
-    u.user_type,
-    u.name,
+    u.user_id, 
+    u.user_type, 
+    u.name, 
     u.username
-HAVING published_articles > 0
-ORDER BY score DESC;
+ORDER BY score DESC 
+;
 ");
     $stmt->execute();
     $leaders = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -70,7 +57,7 @@ ORDER BY score DESC;
     $visibleLeaders = array_slice($leaders, 3, 7);
     $showPinnedCurrentUser = $currentUserRank !== null && $currentUserRank > 10 && $currentLeader !== null;
     ?>
-
+ <title>LeaderBoard - The Digital Scape</title>
     <style>
         .leaderboard-shell {
             min-height: calc(100vh - 100px);
@@ -361,7 +348,7 @@ ORDER BY score DESC;
 
                             <div class="name"><?php echo htmlspecialchars($leader['name']); ?></div>
                             <div class="pub"><?php echo htmlspecialchars($leader['published_articles']); ?> Articles Published</div>
-                            <div class="points"><?php echo htmlspecialchars($leader['final_marks']); ?> pts</div>
+                            <div class="points"><?php echo htmlspecialchars($leader['score']); ?> pts</div>
                         </div>
                     <?php } ?>
                 </div>
@@ -395,7 +382,7 @@ ORDER BY score DESC;
                             <span class="pub"><?php echo htmlspecialchars($leader['published_articles']); ?> Articles
                                 Published</span>
 
-                            <span class="leader-points"><?php echo htmlspecialchars($leader['final_marks']); ?> pts</span>
+                            <span class="leader-points"><?php echo htmlspecialchars($leader['score']); ?> pts</span>
                         </li>
                     <?php } ?>
 
@@ -415,7 +402,7 @@ ORDER BY score DESC;
                             <span class="pub"><?php echo htmlspecialchars($leader['published_articles']); ?> Articles
                                 Published</span>
 
-                            <span class="leader-points"><?php echo htmlspecialchars($currentLeader['final_marks']); ?> pts</span>
+                            <span class="leader-points"><?php echo htmlspecialchars($currentLeader['score']); ?> pts</span>
                         </li>
                     <?php } ?>
                 </ul>

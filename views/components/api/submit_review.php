@@ -30,7 +30,7 @@ switch ($method) {
             ]);
             // Update article status
             if ($status == 'approved') {
-                $sql = "UPDATE `article` SET `status` = 'published' WHERE `article_id` = :article_id";
+                $sql = "UPDATE `article` SET `status` = 'published' , published_at=CURRENT_TIMESTAMP WHERE `article_id` = :article_id";
                 $stmt = $conn->prepare($sql);
                 $success = $stmt->execute([
                     ':article_id' => $article_id

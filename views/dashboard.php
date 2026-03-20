@@ -1,4 +1,5 @@
 <?php
+ini_set('display_errors', 0);
 require_once __DIR__ . '/../utils/base.php';
 session_start();
 $title = "Navbar";
@@ -56,30 +57,38 @@ switch ($method) {
             <?php include __DIR__ . '/components/header.php'; ?>
             <main style="flex: 1; overflow-y: auto; overflow-x: hidden;">
                 <?php
-                if ($page == 'article') {
+                if ($page == 'article'  &&($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'student' || $_SESSION['role'] == 'teacher')) {
                     include __DIR__ . '/components/article.php';
                 } else if ($page == 'add_article'||$page == 'edit_article') {
                     include __DIR__ . '/components/editor.php';
-                }else if($page == 'reviews'){
+                }else if($page == 'reviews' && $_SESSION['role'] == 'admin'){
                     include __DIR__ . '/components/review.php';
-                }else if($page == 'add_review'){
+                }else if($page == 'add_review' && $_SESSION['role'] == 'admin'){
                     include __DIR__ . '/components/add_review.php';
-                }else if($page == 'in_review'){
+                }else if($page == 'in_review'  && $_SESSION['role'] == 'admin'){
                     include __DIR__ . '/components/in_review.php';
-                }else if($page=='edit_review_article'){
+                }else if($page=='edit_review_article' &&($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'student' || $_SESSION['role'] == 'teacher')){
                     include __DIR__ . '/components/student_resubmit.php';
-                }else if($page=='add_admin'){
+                }else if($page=='add_admin'  && $_SESSION['role'] == 'admin'){
                     include __DIR__ . '/components/add_admin.php';
-                }else if($page=='add_category'){
+                }else if($page=='add_category'  && $_SESSION['role'] == 'admin'){
                     include __DIR__ . '/components/add_category.php';
                 }
-                else if ($page == 'overview') {
+                else if ($page == 'overview'  &&($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'student' || $_SESSION['role'] == 'teacher')) {
                     include __DIR__ . '/components/overview.php';
-                }else if($page=='add_developer'){
+                }else if ($page == 'overview'  &&($_SESSION['role'] == 'developer')) {
+                    include __DIR__ . '/components/logshow.php';
+                }
+                else if($page=='add_developer'  && $_SESSION['role'] == 'admin'){
                     include __DIR__ . '/components/add_developer.php';
-                }else if($page=='notice'){
+                }else if($page=='add_student'  && $_SESSION['role'] == 'admin'){
+                    include __DIR__ . '/components/add_student.php';
+                }else if($page=='add_teacher'  && $_SESSION['role'] == 'admin'){
+                    include __DIR__ . '/components/add_teacher.php';
+                }
+                else if($page=='notice'&& $_SESSION['role'] == 'admin' ){
                     include __DIR__ . '/components/notice.php';
-                }else if($page=='leaderboard'){
+                }else if($page=='leaderboard' ){
                     include __DIR__ . '/components/leaderboard.php';
                 }else if($page=='update_profile'){
                     include __DIR__ . '/components/update_profile.php';

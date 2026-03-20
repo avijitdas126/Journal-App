@@ -1,4 +1,5 @@
 <?php
+ini_set('display_errors', 0);
 require_once __DIR__ . '/../../utils/db_conn.php';
 $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
 $sql1 = "SELECT * FROM notices ORDER BY at_publish DESC;";
@@ -7,6 +8,7 @@ $stmt1->execute();
 $notices = $stmt1->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
+<title>Notice Board - The Digital Scape</title>
 <style>
     .notices-table {
         border-collapse: collapse;

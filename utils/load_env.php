@@ -1,5 +1,5 @@
 <?php
-
+ini_set('display_errors', 0);
 function load_env() {
     $envPath = __DIR__ . '/../.env';   
 

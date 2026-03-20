@@ -1,5 +1,5 @@
 <?php 
-
+ini_set('display_errors', 0);
 require_once __DIR__ . '/load_env.php';
 require_once __DIR__ . '/logger.php';
 load_env();

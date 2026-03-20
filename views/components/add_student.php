@@ -1,37 +1,42 @@
 <?php
 ini_set('display_errors', 0);
 require_once __DIR__ . '/../../utils/db_conn.php';
+require_once __DIR__ . '/../../utils/base.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));
 
 if ($method === 'POST') {
 
-    $admin_name = $_POST['admin_name'];
-    $admin_username = $_POST['admin_username'];
+    $developer_name = $_POST['developer_name'];
+    $developer_username = $_POST['developer_username'];
     $email = $_POST['email'];
-    $admin_password = password_hash($_POST['admin_password'], PASSWORD_BCRYPT);
+    $developer_password = password_hash($_POST['developer_password'], PASSWORD_BCRYPT);
     $college_name = $_POST['college_name'];
     $department_id = $_POST['department_id'];
+    $university_roll = $_POST['university_roll'];
+    $student_id = $_POST['student_id'];
 
     try {
-        $sql = "SELECT * FROM `admins` WHERE `username` = :username AND `role` = 'admin';";
+        $sql = "SELECT * FROM `admins` WHERE `username` = :username AND `role` = 'developer';";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([':username' => $admin_username]);
+        $stmt->execute([':username' => $developer_username]);
         if (count($stmt->fetchAll())) {
-            header("Location: /Journal/views/dashboard.php?page=add_admin&status=exists");
+            header("Location: $base_url/views/dashboard.php?page=add_developer&status=exists");
             exit;
         }
-        $sql = "INSERT INTO admins 
-            (name, username, password, college_name, department_id, role)
-            VALUES (:name, :username, :password, :college_name, :department_id, 'admin');";
+        $sql = "INSERT INTO students 
+            (name, username, password, college_name,university_roll,student_id, department_id)
+            VALUES (:name, :username, :password, :college_name,:university_roll,:student_id, :department_id);";
 
         $stmt = $conn->prepare($sql);
         $success = $stmt->execute([
-            ':name' => $admin_name,
-            ':username' => $admin_username,
-            ':password' => $admin_password,
+            ':name' => $developer_name,
+            ':username' => $developer_username,
+            ':password' => $developer_password,
             ':college_name' => $college_name,
-            ':department_id' => $department_id
+            ':department_id' => $department_id,
+            ':student_id' => $student_id,
+            ':university_roll' => $university_roll
         ]);
 
         if ($success) {
@@ -40,15 +45,15 @@ if ($method === 'POST') {
             <h1>Welcome to Journal</h1>
             <p>Your account has been created successfully. Here are your login details:</p>
             <ul>
-            <li><strong>Username:</strong> ' . $admin_username . '</li>
-            <li><strong>Password:</strong> ' . $_POST['admin_password'] . '</li>';
-            $altbody = 'Welcome to Journal. Your account has been created successfully. Here are your login details: Username: ' . $admin_username . ' Password: ' . $_POST['admin_password'];
-            $subject = 'Welcome to Journal, ' . $admin_name;
+            <li><strong>Username:</strong> ' . $developer_name . '</li>
+            <li><strong>Password:</strong> ' . $_POST['developer_password'] . '</li>';
+            $altbody = 'Welcome to Journal. Your account has been created successfully. Here are your login details: Username: ' . $developer_name . ' Password: ' . $_POST['developer_password'];
+            $subject = 'Welcome to Journal, ' . $developer_name;
             sendMailToNewAdmin($email, $admin_name, $subject, $body, $altbody);
-            header("Location: /Journal/views/dashboard.php?page=add_admin&status=success");
+            header("Location: $base_url/views/dashboard.php?page=add_student&status=success");
             exit;
         } else {
-            header("Location: /Journal/views/dashboard.php?page=add_admin&status=error");
+            header("Location: $base_url/views/dashboard.php?page=add_student&status=error");
             exit;
         }
 
@@ -61,14 +66,14 @@ if ($method === 'POST') {
     if ($error == 'success') {
         ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> New admin added successfully.
+            <strong>Success!</strong> New Student added successfully.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <?php
     } else if ($error == 'error') {
         ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Error!</strong> There was an error adding the new admin.
+                <strong>Error!</strong> There was an error adding the new Student.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php
@@ -80,7 +85,7 @@ if ($method === 'POST') {
                 </div>
         <?php
     }
-    $sql = "SELECT * FROM `admins` WHERE `role` = 'admin';";
+    $sql = "SELECT S.*,D.name AS Department FROM `students` AS S JOIN departments AS D ON S.department_id=D.department_id ;";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $user = $stmt->fetchAll();
@@ -104,10 +109,10 @@ if ($method === 'POST') {
     <div class="row py-2">
         <div class="col-12 d-flex" style="justify-content: space-between;align-items: center;">
             <h1>
-                List of Admins
+                List of Students
             </h1>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                Add New Admin</button>
+                Add New Student</button>
         </div>
     </div>
     <div class="row py-4" style="margin-bottom: 140px;">
@@ -116,7 +121,7 @@ if ($method === 'POST') {
                 <table id="example" class="table table-hover responsive nowrap" style="width:100%; min-width:600px;">
                     <thead>
                         <tr>
-                            <th>Admin Id </th>
+                            <th>Student Id </th>
                             <th>Name</th>
                             <th>Username</th>
                             <th>College</th>
@@ -127,11 +132,11 @@ if ($method === 'POST') {
                     <tbody>
                         <?php foreach ($user as $admin) { ?>
                             <tr>
-                                <td><?php echo $admin['admin_id'] ?></td>
+                                <td><?php echo $admin['student_id'] ?></td>
                                 <td><?php echo $admin['name'] ?></td>
                                 <td><?php echo $admin['username'] ?></td>
                                 <td><?php echo $admin['college_name'] ?></td>
-                                <td><?php echo $admin['department_id'] ?></td>
+                                <td><?php echo $admin['Department'] ?></td>
                             </tr>
                         <?php } ?>
                     </tbody>
@@ -145,28 +150,38 @@ if ($method === 'POST') {
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Admin</h1>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Student</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row py-4">
-                        <form action="/Journal/views/components/add_admin.php" method="POST">
+                        <form action="<?= $base_url ?>/views/components/add_student.php" method="POST">
                             <div class="col-12">
                                 <div class="mb-3">
-                                    <label for="admin_name" class="form-label">Admin Name</label>
-                                    <input type="text" class="form-control" id="admin_name"
-                                        placeholder="Enter a admin name" name="admin_name" required>
+                                    <label for="developer_name" class="form-label">Student Name</label>
+                                    <input type="text" class="form-control" id="developer_name"
+                                        placeholder="Enter a student name" name="developer_name" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="admin_username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="admin_username"
-                                        placeholder="Enter a username" name="admin_username" required>
+                                    <label for="developer_name" class="form-label">University Roll</label>
+                                    <input type="text" class="form-control" id="developer_name"
+                                        placeholder="Enter your university Roll" name="university_roll" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="admin_password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="admin_password"
-                                        name="admin_password" placeholder="Enter a Password" required>
+                                    <label for="developer_name" class="form-label">Student Id</label>
+                                    <input type="text" class="form-control" id="developer_name"
+                                        placeholder="Enter your student id" name="student_id" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="developer_username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="developer_username"
+                                        placeholder="Enter a username" name="developer_username" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="developer_password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="developer_password"
+                                        name="developer_password" placeholder="Enter a Password" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="exampleInputText1" class="form-label">College Name:</label>

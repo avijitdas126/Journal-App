@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../utils/db_conn.php';
+ini_set('display_errors', 0);
 session_start();
 $id = $_SESSION['user_id'];
 $role=$_SESSION['role'];

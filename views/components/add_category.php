@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 require_once __DIR__ . '/../../utils/db_conn.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $conn = db_conn(Env('servername'), Env('db'), Env('username'), Env('password'));

@@ -1,4 +1,5 @@
 <?php
+ini_set('display_errors', 0);
 require_once __DIR__ . '/../../utils/db_conn.php';
 $id = $_SESSION['user_id'];
 $sql = "SELECT article_id,title,submitted_at,c.category AS category_name FROM `article` JOIN category c ON `article`.category = c.id WHERE `status` = 'submitted' ORDER BY `submitted_at` DESC;";

@@ -148,7 +148,8 @@ $mode = $_GET['mode'] ?? 'draft';
       </div>
       <div class="offcanvas-body">
         <div class="offcanvas-user">
-          <img src="<?php echo isset($_SESSION['avatar_url']) ? $_SESSION['avatar_url'] : 'https://dummyimage.com/400x400/000/fff&text=' . urlencode($_SESSION['name'][0]); ?>"
+          <img
+            src="<?php echo isset($_SESSION['avatar_url']) ? $_SESSION['avatar_url'] : 'https://dummyimage.com/400x400/000/fff&text=' . urlencode($_SESSION['name'][0]); ?>"
             alt="avatar" />
           <div class="offcanvas-user-info">
             <span class="name"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
@@ -169,8 +170,9 @@ $mode = $_GET['mode'] ?? 'draft';
               Overview
             </a>
           </li>
+          <?php if ($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'student' || $_SESSION['role'] == 'teacher') { ?>
           <li>
-            <a href="?page=article" class="<?php if ($page == 'article' || $page == 'edit_article' || $page == 'add_article') {
+            <a href="?page=article" class="<?php if (($page == 'article' || $page=='edit_review_article' || $page == 'edit_article' || $page == 'add_article')) {
               echo 'active';
             } ?>">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
@@ -183,7 +185,8 @@ $mode = $_GET['mode'] ?? 'draft';
               Post an Article
             </a>
           </li>
-          <?php if ($_SESSION['department_id'] == 20 && ($_SESSION['role'] == 'teacher' || $_SESSION['role'] == 'admin')) { ?>
+          <?php }?>
+          <?php if ( $_SESSION['role'] == 'admin') { ?>
             <li>
               <a href="?page=reviews" class="<?php if ($page == 'reviews' || $page == 'in_review' || $page == 'add_review') {
                 echo 'active';
@@ -198,7 +201,7 @@ $mode = $_GET['mode'] ?? 'draft';
               </a>
             </li>
           <?php } ?>
-          <?php if ($_SESSION['department_id'] == 20 && $_SESSION['role'] == 'admin') { ?>
+          <?php if ($_SESSION['role'] == 'admin') { ?>
             <li>
               <a href="?page=add_admin" class="<?php if ($page == 'add_admin') {
                 echo 'active';
@@ -209,6 +212,30 @@ $mode = $_GET['mode'] ?? 'draft';
                     d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm4.5 8a5.5 5.5 0 1 0-9 0h9zm3-7a.5.5 0 0 1 .5.5V12h2.5a.5.5 0 0 1 0 1H14v2.5a.5.5 0 0 1-1 0V13h-2.5a.5.5 0 0 1 0-1H13v-2.5a.5.5 0 0 1 1 0z" />
                 </svg>
                 Add Admin
+              </a>
+            </li>
+            <li>
+              <a href="?page=add_teacher" class="<?php if ($page == 'add_teacher') {
+                echo 'active';
+              } ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people"
+                  viewBox="0 0 16 16">
+                  <path
+                    d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4" />
+                </svg>
+                Add Teacher 
+              </a>
+            </li>
+            <li>
+              <a href="?page=add_student" class="<?php if ($page == 'add_student') {
+                echo 'active';
+              } ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                  class="bi bi-file-person-fill" viewBox="0 0 16 16">
+                  <path
+                    d="M12 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2m-1 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0m-3 4c2.623 0 4.146.826 5 1.755V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-1.245C3.854 11.825 5.377 11 8 11" />
+                </svg>
+                Add Student
               </a>
             </li>
             <li>
@@ -223,6 +250,7 @@ $mode = $_GET['mode'] ?? 'draft';
                 Add Category
               </a>
             </li>
+
             <li>
               <a href="?page=add_developer" class="<?php if ($page == 'add_developer') {
                 echo 'active';
@@ -235,6 +263,7 @@ $mode = $_GET['mode'] ?? 'draft';
                 Add Developer
               </a>
             </li>
+
             <li>
               <a href="?page=notice" class="<?php if ($page == 'notice') {
                 echo 'active';
@@ -301,8 +330,9 @@ $mode = $_GET['mode'] ?? 'draft';
               accordingly.
             </div>
             <form action="<?php baseurl("components/api/updateStatus.php") ?>" method="post">
-              <input type="hidden" name="id" value="<?php echo $_SESSION['user_id']; ?>">
-              <input type="hidden" name="article_id" value="<?php echo $_GET['id']; ?>">
+              <input type="hidden" name="id" value=<?php echo $_SESSION['user_id']; ?>>
+              <input type="hidden" name="article_id" value=<?php echo $_GET['id']; ?>>
+              <input type="hidden" name="role" value="<?php echo $_SESSION['role']; ?>">
               <input type="hidden" name="status" value="submitted">
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -318,7 +348,8 @@ $mode = $_GET['mode'] ?? 'draft';
 
   <div class="profile">
 
-    <img src="<?php  echo isset($_SESSION['avatar_url']) ? $_SESSION['avatar_url'] : 'https://dummyimage.com/400x400/000/fff&text=' . urlencode($_SESSION['name'][0]); ?>"
+    <img
+      src="<?php echo isset($_SESSION['avatar_url']) ? $_SESSION['avatar_url'] : 'https://dummyimage.com/400x400/000/fff&text=' . urlencode($_SESSION['name'][0]); ?>"
       alt="avatar" width="32" height="32" class="rounded-circle me-2" />
     <div id="menu">
       <ul>
