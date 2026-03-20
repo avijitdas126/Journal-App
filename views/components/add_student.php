@@ -25,8 +25,8 @@ if ($method === 'POST') {
             exit;
         }
         $sql = "INSERT INTO students 
-            (name, username, password, college_name,university_roll,student_id, department_id)
-            VALUES (:name, :username, :password, :college_name,:university_roll,:student_id, :department_id);";
+            (name, username, password, college_name, email, university_roll,student_id, department_id)
+            VALUES (:name, :username, :password, :college_name,:email, :university_roll,:student_id, :department_id);";
 
         $stmt = $conn->prepare($sql);
         $success = $stmt->execute([
@@ -34,6 +34,7 @@ if ($method === 'POST') {
             ':username' => $developer_username,
             ':password' => $developer_password,
             ':college_name' => $college_name,
+            ':email' => $email,
             ':department_id' => $department_id,
             ':student_id' => $student_id,
             ':university_roll' => $university_roll
@@ -49,7 +50,7 @@ if ($method === 'POST') {
             <li><strong>Password:</strong> ' . $_POST['developer_password'] . '</li>';
             $altbody = 'Welcome to Journal. Your account has been created successfully. Here are your login details: Username: ' . $developer_name . ' Password: ' . $_POST['developer_password'];
             $subject = 'Welcome to Journal, ' . $developer_name;
-            sendMailToNewAdmin($email, $admin_name, $subject, $body, $altbody);
+            sendMailToNewAdmin($email, $developer_name, $subject, $body, $altbody);
             header("Location: $base_url/views/dashboard.php?page=add_student&status=success");
             exit;
         } else {

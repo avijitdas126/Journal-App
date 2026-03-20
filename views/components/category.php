@@ -42,7 +42,7 @@ switch ($method) {
        ?> Recent Published Articles
     </title>
 </head>
-<div class="container" style="height: 100vh; padding-top:20px;">
+<div class="container mb-3" style="padding-top:20px;">
     <div class="row py-2">
         <div class="col-12 d-flex" style="justify-content: space-between;align-items: center;">
             <h1>

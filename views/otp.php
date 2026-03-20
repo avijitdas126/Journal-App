@@ -20,7 +20,7 @@ switch ($method) {
                         $_SESSION['email'],
                         $username,
                     ]);
-                } else if ($role == 'teacher') {
+                } else {
                     $stmt = $conn->prepare("UPDATE `admins` SET `email` = ? WHERE `username` = ?");
                     $ok = $stmt->execute([
                         $_SESSION['email'],

@@ -22,8 +22,8 @@ if ($method === 'POST') {
             exit;
         }
         $sql = "INSERT INTO admins 
-            (name, username, password, college_name, department_id, role)
-            VALUES (:name, :username, :password, :college_name, :department_id, 'teacher');";
+            (name, username, password, college_name, email, department_id, role)
+            VALUES (:name, :username, :password, :college_name, :email, :department_id, 'teacher');";
 
         $stmt = $conn->prepare($sql);
         $success = $stmt->execute([
@@ -31,6 +31,7 @@ if ($method === 'POST') {
             ':username' => $teacher_username,
             ':password' => $teacher_password,
             ':college_name' => $college_name,
+            ':email' => $email,
             ':department_id' => $department_id
         ]);
 

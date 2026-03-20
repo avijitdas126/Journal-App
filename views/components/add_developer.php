@@ -22,14 +22,15 @@ if ($method === 'POST') {
             exit;
         }
         $sql = "INSERT INTO admins 
-            (name, username, password, college_name, department_id, role)
-            VALUES (:name, :username, :password, :college_name, :department_id, 'developer');";
+            (name, username, password, email, college_name, department_id, role)
+            VALUES (:name, :username, :password, :email, :college_name, :department_id, 'developer');";
 
         $stmt = $conn->prepare($sql);
         $success = $stmt->execute([
             ':name' => $developer_name,
             ':username' => $developer_username,
             ':password' => $developer_password,
+            ':email' => $email,
             ':college_name' => $college_name,
             ':department_id' => $department_id
         ]);
@@ -43,8 +44,8 @@ if ($method === 'POST') {
             <li><strong>Username:</strong> ' . $developer_username . '</li>
             <li><strong>Password:</strong> ' . $_POST['developer_password'] . '</li>';
             $altbody = 'Welcome to Journal. Your account has been created successfully. Here are your login details: Username: ' . $developer_username . ' Password: ' . $_POST['developer_password'];
-            $subject = 'Welcome to Journal, ' . $admin_name;
-            sendMailToNewAdmin($email, $admin_name, $subject, $body, $altbody);
+            $subject = 'Welcome to Journal, ' . $developer_name;
+            sendMailToNewAdmin($email, $developer_name, $subject, $body, $altbody);
             header("Location: /Journal/views/dashboard.php?page=add_developer&status=success");
             exit;
         } else {
